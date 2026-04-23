@@ -1,0 +1,230 @@
+{
+  "version": "v0",
+  "last_updated": "2026-04-20",
+  "notes": "Starting hypothesis. Tune based on what Scout surfaces and what Strategist proposes. Edit this file directly; git history is the version record.",
+
+  "surfaces": [
+    {
+      "id": "mobile_claude_code",
+      "label": "Mobile access to Claude Code",
+      "type": "permanent",
+      "tier": 1,
+      "search_terms": [
+        "mobile app for Claude Code",
+        "Claude Code on phone",
+        "Claude Code iOS",
+        "Claude Code Android",
+        "access Claude Code from mobile"
+      ],
+      "official_urls": [
+        "https://docs.anthropic.com/en/docs/claude-code/overview",
+        "https://www.anthropic.com/news"
+      ]
+    },
+    {
+      "id": "mobile_coding_agents_general",
+      "label": "Mobile access to coding agents (non-Claude-Code)",
+      "type": "permanent",
+      "tier": 2,
+      "search_terms": [
+        "mobile coding agent",
+        "AI coding agent on phone",
+        "run coding agent from mobile",
+        "OpenCode mobile",
+        "Aider mobile",
+        "Cursor mobile"
+      ]
+    },
+    {
+      "id": "remote_control_coding_agents",
+      "label": "Remotely monitoring and controlling coding agents",
+      "type": "permanent",
+      "tier": 2,
+      "search_terms": [
+        "remote Claude Code",
+        "monitor coding agent remotely",
+        "control AI agent from another machine",
+        "coding agent approval from remote"
+      ]
+    },
+    {
+      "id": "coding_agent_approval_gates",
+      "label": "Tool call approval and agent oversight",
+      "type": "permanent",
+      "tier": 2,
+      "search_terms": [
+        "approve Claude Code tool calls",
+        "coding agent approval",
+        "review AI agent actions",
+        "approve coding agent from phone",
+        "coding agent oversight"
+      ]
+    },
+    {
+      "id": "daytona_dev_environments",
+      "label": "Daytona and cloud dev environments for AI agents",
+      "type": "permanent",
+      "tier": 3,
+      "search_terms": [
+        "Daytona AI agent",
+        "cloud dev environment Claude Code",
+        "run Claude Code in cloud",
+        "ephemeral dev environment AI agent"
+      ],
+      "official_urls": [
+        "https://www.daytona.io/blog",
+        "https://www.daytona.io/docs"
+      ]
+    },
+    {
+      "id": "mobile_dev_workflows",
+      "label": "General mobile-first developer workflows",
+      "type": "permanent",
+      "tier": 3,
+      "search_terms": [
+        "coding on phone",
+        "mobile dev workflow",
+        "developer mobile tools",
+        "code from phone"
+      ]
+    },
+    {
+      "id": "rotating_competitor_happy_coder",
+      "label": "Happy Coder comparisons and mentions",
+      "type": "rotating",
+      "tier": 2,
+      "search_terms": [
+        "Happy Coder",
+        "Happy Coder alternative",
+        "Happy Coder vs",
+        "Happy Coder review"
+      ]
+    },
+    {
+      "id": "rotating_competitor_claude_code_remote",
+      "label": "Anthropic Claude Code Remote Control",
+      "type": "rotating",
+      "tier": 1,
+      "search_terms": [
+        "Claude Code Remote Control",
+        "Anthropic remote Claude Code",
+        "Claude Code mobile app Anthropic",
+        "official Claude Code mobile"
+      ],
+      "official_urls": [
+        "https://docs.anthropic.com/en/docs/claude-code/remote"
+      ]
+    },
+    {
+      "id": "rotating_competitor_cursor_mobile",
+      "label": "Cursor PWA mobile agent",
+      "type": "rotating",
+      "tier": 2,
+      "search_terms": [
+        "Cursor mobile app",
+        "Cursor PWA",
+        "Cursor mobile agent",
+        "Cursor on phone"
+      ]
+    },
+    {
+      "id": "rotating_pain_point_context_switching",
+      "label": "Context switching and async coding agent workflows",
+      "type": "rotating",
+      "tier": 3,
+      "search_terms": [
+        "coding agent async workflow",
+        "long-running Claude Code",
+        "overnight coding agent",
+        "background AI coding agent"
+      ]
+    }
+  ],
+
+  "subreddits": [
+    {
+      "name": "ClaudeCode",
+      "surface_ids": ["mobile_claude_code", "remote_control_coding_agents", "coding_agent_approval_gates", "rotating_competitor_claude_code_remote"],
+      "monitor_new": true
+    },
+    {
+      "name": "LocalLLaMA",
+      "surface_ids": ["mobile_coding_agents_general", "remote_control_coding_agents"],
+      "monitor_new": true
+    },
+    {
+      "name": "ChatGPTCoding",
+      "surface_ids": ["mobile_coding_agents_general", "coding_agent_approval_gates"],
+      "monitor_new": true
+    },
+    {
+      "name": "cursor",
+      "surface_ids": ["rotating_competitor_cursor_mobile", "mobile_coding_agents_general"],
+      "monitor_new": true
+    },
+    {
+      "name": "ArtificialIntelligence",
+      "surface_ids": ["mobile_coding_agents_general", "mobile_dev_workflows"],
+      "monitor_new": false
+    },
+    {
+      "name": "programming",
+      "surface_ids": ["mobile_dev_workflows", "mobile_coding_agents_general"],
+      "monitor_new": false
+    },
+    {
+      "name": "devops",
+      "surface_ids": ["daytona_dev_environments", "remote_control_coding_agents"],
+      "monitor_new": false
+    },
+    {
+      "name": "selfhosted",
+      "surface_ids": ["daytona_dev_environments", "remote_control_coding_agents"],
+      "monitor_new": false
+    }
+  ],
+
+  "competitors": [
+    {
+      "name": "Happy Coder",
+      "surface_ids": ["rotating_competitor_happy_coder", "mobile_claude_code", "mobile_coding_agents_general"],
+      "watched_urls": [
+        "https://happy.engineering/",
+        "https://happy.engineering/docs/",
+        "https://happy.engineering/blog/"
+      ]
+    },
+    {
+      "name": "Anthropic Claude Code Remote Control",
+      "surface_ids": ["rotating_competitor_claude_code_remote", "mobile_claude_code"],
+      "watched_urls": [
+        "https://www.anthropic.com/news",
+        "https://docs.claude.com/en/docs/claude-code/remote"
+      ]
+    },
+    {
+      "name": "AgentsRoom Mobile",
+      "surface_ids": ["mobile_coding_agents_general", "remote_control_coding_agents"],
+      "watched_urls": [
+        "https://agentsroom.dev/",
+        "https://agentsroom.dev/mobile"
+      ]
+    },
+    {
+      "name": "Cursor",
+      "surface_ids": ["rotating_competitor_cursor_mobile", "mobile_coding_agents_general"],
+      "watched_urls": [
+        "https://www.cursor.com/",
+        "https://www.cursor.com/changelog",
+        "https://www.cursor.com/mobile"
+      ]
+    },
+    {
+      "name": "getremote.app",
+      "surface_ids": ["mobile_claude_code", "remote_control_coding_agents"],
+      "watched_urls": [
+        "https://getremote.app/"
+      ]
+    }
+  ]
+}

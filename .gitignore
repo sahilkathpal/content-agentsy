@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.env
+.DS_Store
+.grass-relay-token
+data/runs/
+data/measurement.db
+data/measurement.db-wal
+data/measurement.db-shm
+data/scorecard.json
+data/scorecards/
+data/logs/
+data/seen-urls.json
+*.pem
+*.key

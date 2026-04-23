@@ -1,0 +1,30 @@
+{
+  "name": "content-agentsy",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/runner.ts",
+    "webhook": "tsx src/webhook-server.ts",
+    "sync": "tsx src/sync/run-nightly.ts",
+    "sync:articles": "tsx src/sync/sync-articles.ts",
+    "sync:otterly": "tsx src/sync/sync-otterly.ts",
+    "sync:gsc": "tsx src/sync/sync-gsc.ts",
+    "llms": "tsx src/scripts/update-llms.ts",
+    "scorecard": "tsx src/agents/scorer.ts",
+    "dashboard": "tsx src/dashboard.ts"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.9.0",
+    "dotenv": "^16.4.7",
+    "marked": "^18.0.2",
+    "parallel-web": "^0.3.2",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^22.13.10",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3"
+  }
+}
