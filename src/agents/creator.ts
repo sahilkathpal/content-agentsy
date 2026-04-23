@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { CreatorOutputSchema, type CreatorOutput } from "../models/creator-output.js";
 import { StrategistOutputSchema } from "../models/strategist-output.js";
 import { ScoutOutputSchema, type ScoutOutput } from "../models/scout-output.js";
-import { callClaude } from "../claude.js";
+import { callClaude, extractJson } from "../claude.js";
 import { loadPrompt } from "../prompts/load.js";
 import { loadContextForConsumer, buildContextString } from "../context/load-context.js";
 import { z } from "zod";
@@ -84,20 +84,15 @@ export async function runCreator(
 
     let parsed: Record<string, unknown>;
     if (jsonStart !== -1 && markdownStart !== -1 && markdownStart > jsonStart) {
-      const jsonSection = text.slice(jsonStart + jsonMarker.length, markdownStart).trim()
-        .replace(/^```(?:json)?\s*\n?/m, "")
-        .replace(/\n?```\s*$/m, "")
-        .trim();
+      const jsonSection = extractJson(
+        text.slice(jsonStart + jsonMarker.length, markdownStart).trim()
+      );
       const markdownSection = text.slice(markdownStart + markdownMarker.length).trim();
       parsed = JSON.parse(jsonSection);
       parsed.canonical_markdown = markdownSection;
     } else {
       // Fallback: try parsing as raw JSON (legacy format)
-      const cleaned = text
-        .replace(/^```(?:json)?\s*\n?/m, "")
-        .replace(/\n?```\s*$/m, "")
-        .trim();
-      parsed = JSON.parse(cleaned);
+      parsed = JSON.parse(extractJson(text));
     }
 
     const output = CreatorOutputSchema.parse(parsed);

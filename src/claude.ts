@@ -5,6 +5,34 @@ export interface CallClaudeOpts {
 }
 
 /**
+ * Extract JSON content from a Claude response that may contain:
+ * - A conversational preamble before a ```json fence
+ * - A plain ```json...``` or ``` ``` fence with no preamble
+ * - Raw JSON with no fence at all
+ *
+ * Strategy:
+ *   1. Look for the FIRST ```json or ``` fence and capture everything inside it.
+ *   2. If no fence found, slice from the first `{` or `[` in the response.
+ */
+export function extractJson(text: string): string {
+  const fenceMatch = text.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/);
+  if (fenceMatch) {
+    return fenceMatch[1].trim();
+  }
+  // Fallback: find first structural character
+  const firstBrace = text.indexOf("{");
+  const firstBracket = text.indexOf("[");
+  if (firstBrace === -1 && firstBracket === -1) {
+    return text.trim(); // let JSON.parse fail with original text
+  }
+  const start =
+    firstBrace === -1 ? firstBracket
+    : firstBracket === -1 ? firstBrace
+    : Math.min(firstBrace, firstBracket);
+  return text.slice(start).trim();
+}
+
+/**
  * Call Claude Code CLI with a prompt and return the text response.
  * Uses spawn to stream the prompt via stdin, avoiding EPIPE on large payloads.
  * Retries transient failures (non-zero exit codes) with exponential backoff.

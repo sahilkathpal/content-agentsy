@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { SignalSchema, type Signal } from "../models/signal.js";
 import type { Surface } from "../models/surface.js";
 import type { RawBuckets } from "./sourcing.js";
-import { callClaude } from "../claude.js";
+import { callClaude, extractJson } from "../claude.js";
 import { loadPrompt } from "../prompts/load.js";
 import { z } from "zod";
 import { type SeenLedger, classifySignal, updateLedger } from "../ledger.js";
@@ -51,8 +51,7 @@ export async function runStructuring(
   const text = await callClaude(prompt);
 
   try {
-    const cleaned = text.replace(/^```(?:json)?\s*\n?/m, "").replace(/\n?```\s*$/m, "").trim();
-    const parsed = JSON.parse(cleaned);
+    const parsed = JSON.parse(extractJson(text));
     const signals = z.array(SignalSchema).parse(parsed);
 
     // Post-process: apply freshness tagging from ledger

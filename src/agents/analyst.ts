@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { AnalystOutputSchema, type AnalystOutput } from "../models/analyst-output.js";
 import { SiteScorecardSchema, type SiteScorecard } from "../models/site-scorecard.js";
-import { callClaude } from "../claude.js";
+import { callClaude, extractJson } from "../claude.js";
 import { loadPrompt } from "../prompts/load.js";
 
 /**
@@ -43,8 +43,7 @@ export async function runAnalyst(
   const text = await callClaude(prompt);
 
   try {
-    const cleaned = text.replace(/^```(?:json)?\s*\n?/m, "").replace(/\n?```\s*$/m, "").trim();
-    const parsed = JSON.parse(cleaned);
+    const parsed = JSON.parse(extractJson(text));
     const output = AnalystOutputSchema.parse(parsed);
 
     console.log(`  [analyst] Analysis complete:`);

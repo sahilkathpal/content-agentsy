@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { StrategistOutputSchema, type StrategistOutput } from "../models/strategist-output.js";
 import { ScoutOutputSchema, type ScoutOutput } from "../models/scout-output.js";
-import { callClaude } from "../claude.js";
+import { callClaude, extractJson } from "../claude.js";
 import { loadPrompt } from "../prompts/load.js";
 import { loadContextForConsumer, buildContextString } from "../context/load-context.js";
 import { z } from "zod";
@@ -51,11 +51,7 @@ export async function runStrategist(
   const text = await callClaude(prompt, "claude-sonnet-4-6");
 
   try {
-    const cleaned = text
-      .replace(/^```(?:json)?\s*\n?/m, "")
-      .replace(/\n?```\s*$/m, "")
-      .trim();
-    const parsed = JSON.parse(cleaned);
+    const parsed = JSON.parse(extractJson(text));
     const output = StrategistOutputSchema.parse(parsed);
 
     console.log(

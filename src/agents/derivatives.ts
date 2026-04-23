@@ -7,7 +7,7 @@ import {
 } from "../models/derivatives-output.js";
 import { CreatorOutputSchema } from "../models/creator-output.js";
 import { StrategistOutputSchema } from "../models/strategist-output.js";
-import { callClaude } from "../claude.js";
+import { callClaude, extractJson } from "../claude.js";
 import { loadPrompt } from "../prompts/load.js";
 import { loadContextForConsumer, buildContextString } from "../context/load-context.js";
 import { config } from "../config.js";
@@ -116,12 +116,8 @@ async function generateSyndication(
     });
 
     const text = await callClaude(prompt, "claude-sonnet-4-6");
-    const cleaned = text
-      .replace(/^```(?:json)?\s*\n?/m, "")
-      .replace(/\n?```\s*$/m, "")
-      .trim();
 
-    const parsed = JSON.parse(cleaned);
+    const parsed = JSON.parse(extractJson(text));
     const assets = z.array(
       z.object({
         platform: z.string(),
@@ -166,12 +162,8 @@ async function generateNativeUnits(
     });
 
     const text = await callClaude(prompt, "claude-sonnet-4-6");
-    const cleaned = text
-      .replace(/^```(?:json)?\s*\n?/m, "")
-      .replace(/\n?```\s*$/m, "")
-      .trim();
 
-    const parsed = JSON.parse(cleaned);
+    const parsed = JSON.parse(extractJson(text));
     const units = z.array(z.any()).parse(parsed);
 
     // Validate each unit individually so one bad unit doesn't kill the batch

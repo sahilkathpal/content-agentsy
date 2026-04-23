@@ -3,7 +3,7 @@ import { createHmac } from "node:crypto";
 import { dirname, join } from "node:path";
 import { marked } from "marked";
 import { config } from "../config.js";
-import { callClaude } from "../claude.js";
+import { callClaude, extractJson } from "../claude.js";
 import { CreatorOutputSchema, type CreatorOutput } from "../models/creator-output.js";
 import type { PublisherOutput } from "../models/publisher-output.js";
 
@@ -122,11 +122,7 @@ async function extractBrandTags(markdown: string): Promise<Array<{ name: string 
     );
     const prompt = template.replace("{{canonical_markdown}}", markdown);
     const text = await callClaude(prompt, "claude-haiku-4-5");
-    const cleaned = text
-      .replace(/^```(?:json)?\s*\n?/m, "")
-      .replace(/\n?```\s*$/m, "")
-      .trim();
-    const parsed = JSON.parse(cleaned) as { brands: string[] };
+    const parsed = JSON.parse(extractJson(text)) as { brands: string[] };
     const brands = (parsed.brands ?? []).slice(0, 8);
     console.log(`[publisher] Brand tags extracted: ${brands.join(", ")}`);
     return brands.map((b) => ({ name: b }));

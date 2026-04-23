@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { ScoutOutputSchema, type ScoutOutput } from "../models/scout-output.js";
 import { SignalSchema, type Signal } from "../models/signal.js";
 import type { Surface } from "../models/surface.js";
-import { callClaude } from "../claude.js";
+import { callClaude, extractJson } from "../claude.js";
 import { loadPrompt } from "../prompts/load.js";
 import { z } from "zod";
 
@@ -41,8 +41,7 @@ export async function runAnalysis(
   const text = await callClaude(prompt, "claude-sonnet-4-6");
 
   try {
-    const cleaned = text.replace(/^```(?:json)?\s*\n?/m, "").replace(/\n?```\s*$/m, "").trim();
-    const parsed = JSON.parse(cleaned);
+    const parsed = JSON.parse(extractJson(text));
     const output = ScoutOutputSchema.parse(parsed);
 
     // Enrich each opportunity with a deterministic freshness profile
