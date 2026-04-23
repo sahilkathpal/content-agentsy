@@ -11,5 +11,6 @@ data/scorecard.json
 data/scorecards/
 data/logs/
 data/seen-urls.json
+data/extractor-state.json
 *.pem
 *.key

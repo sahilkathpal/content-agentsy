@@ -21,7 +21,7 @@ export const DistributionPacketSchema = z.object({
 
   // Strategist decisions
   intent_mode: z.enum(["M0_RESOLVE", "M1_EVALUATE", "M2_EXECUTE"]),
-  grass_role: z.enum(["light", "evaluate", "execute"]),
+  grass_role: z.enum(["light", "evaluate", "integrate", "execute"]),
 
   // Chosen format + channel + voice
   format: z.string(),

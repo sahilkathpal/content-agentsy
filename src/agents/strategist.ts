@@ -3,6 +3,7 @@ import { StrategistOutputSchema, type StrategistOutput } from "../models/strateg
 import { ScoutOutputSchema, type ScoutOutput } from "../models/scout-output.js";
 import { callClaude } from "../claude.js";
 import { loadPrompt } from "../prompts/load.js";
+import { loadContextForConsumer, buildContextString } from "../context/load-context.js";
 import { z } from "zod";
 
 /**
@@ -35,7 +36,10 @@ export async function runStrategist(
 
   const now = new Date().toISOString();
 
+  const grassContext = buildContextString(loadContextForConsumer("strategist"));
+
   const prompt = loadPrompt("strategist", {
+    grass_context: grassContext,
     run_id: runId,
     surfaces_count: String(scoutOutputs.length),
     opportunities_count: String(totalOpportunities),

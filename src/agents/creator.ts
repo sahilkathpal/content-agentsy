@@ -4,7 +4,7 @@ import { StrategistOutputSchema } from "../models/strategist-output.js";
 import { ScoutOutputSchema, type ScoutOutput } from "../models/scout-output.js";
 import { callClaude } from "../claude.js";
 import { loadPrompt } from "../prompts/load.js";
-import { resolve } from "node:path";
+import { loadContextForConsumer, buildContextString } from "../context/load-context.js";
 import { z } from "zod";
 
 /**
@@ -57,11 +57,9 @@ export async function runCreator(
 
   const now = new Date().toISOString();
 
-  // Load Grass product context for brand integration
-  const grassContext = readFileSync(
-    resolve(import.meta.dirname, "../prompts/grass-context.md"),
-    "utf-8"
-  );
+  // Load Grass product context for brand integration (role-filtered)
+  const consumerKey = `creator-${packet.grass_role}`;
+  const grassContext = buildContextString(loadContextForConsumer(consumerKey));
 
   const prompt = loadPrompt("creator", {
     grass_context: grassContext,

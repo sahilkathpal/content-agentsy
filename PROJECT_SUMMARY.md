@@ -59,12 +59,13 @@ Each content opportunity is mapped to three key dimensions (from the framework P
 | Dimension | Values | Meaning |
 |-----------|--------|---------|
 | **Intent Mode** | `M0_RESOLVE`, `M1_EVALUATE`, `M2_EXECUTE` | Reader's state of mind |
-| **Grass Role** (`grass_role`) | `light`, `evaluate`, `execute` | Brand presence in the content |
+| **Grass Role** (`grass_role`) | `light`, `evaluate`, `integrate`, `execute` | Brand presence in the content |
 | **Format** | e.g., `how-to`, `comparison`, `tutorial` | Content shape |
 
-- **M0 / light** — Fix or understand a problem; Grass absent or incidental
-- **M1 / evaluate** — Compare solution paths; Grass present but not dominant
-- **M2 / execute** — Set up, operate, or optimize Grass directly
+- **light** — Grass absent or incidental; pure topical authority
+- **evaluate** — Grass present but not dominant; one option among many
+- **integrate** — Technique is the hero, Grass is the best operational layer; core content is tool-agnostic with a dedicated Grass section
+- **execute** — Grass IS the subject; tutorial/guide specifically about using Grass
 
 These map directly to creator prompts in `src/prompts/creator.md`.
 

@@ -40,6 +40,16 @@ Grass is **present but not dominant**. The post compares options or evaluates ap
 - One or two concrete, specific mentions — never vague marketing language
 - CTA can point to Grass if it's relevant to the verdict, but should not override an honest recommendation
 
+### `grass_role: "integrate"` (technique-first, Grass-enhanced)
+The post teaches a technique or pattern on its own merits first, then shows how Grass elevates the workflow. The technique is the hero; Grass is the best operational layer.
+- Core tutorial steps are **tool-agnostic** — they must work without Grass
+- After the tool-agnostic walkthrough, include a dedicated **section with its own H2 heading** (e.g., "## How Grass Makes This Workflow Better") showing the Grass-powered version — not a footnote, a real section with substance
+- Prerequisites list Grass as **recommended, not required** (e.g., "Optional: Grass for mobile approval forwarding")
+- Internal links from the blog index should be woven into the Grass section and next steps — these are natural insertion points
+- CTA drives to Grass as a "next level" upgrade, not a hard prerequisite
+- Use Grass product details from the context **only in the Grass-specific section and next steps**, not throughout the core tutorial
+- Self-check: if you removed all Grass mentions, would the tutorial still work end-to-end? If not, you've written an `execute` post. Rewrite the core steps to be Grass-independent.
+
 ### `grass_role: "execute"` (maps to M2_EXECUTE intent)
 The post is about **setting up, operating, or optimizing Grass directly**. Grass is the subject.
 - Grass is the hero of the post — the tutorial/guide is specifically about using Grass

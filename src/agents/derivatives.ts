@@ -9,6 +9,7 @@ import { CreatorOutputSchema } from "../models/creator-output.js";
 import { StrategistOutputSchema } from "../models/strategist-output.js";
 import { callClaude } from "../claude.js";
 import { loadPrompt } from "../prompts/load.js";
+import { loadContextForConsumer, buildContextString } from "../context/load-context.js";
 import { config } from "../config.js";
 import { z } from "zod";
 
@@ -101,7 +102,10 @@ async function generateSyndication(
       `  [derivatives] calling Claude for syndication (${packet.syndication_targets.length} targets)…`
     );
 
+    const grassContext = buildContextString(loadContextForConsumer("derivatives"));
+
     const prompt = loadPrompt("derivatives-syndication", {
+      grass_context: grassContext,
       canonical_title: creatorOutput.title,
       canonical_slug: creatorOutput.slug,
       meta_description: creatorOutput.meta_description,
@@ -148,7 +152,10 @@ async function generateNativeUnits(
     // Condense the canonical markdown to key points for native prompt size
     const condensed = condenseCanonical(creatorOutput.canonical_markdown);
 
+    const grassContext = buildContextString(loadContextForConsumer("derivatives"));
+
     const prompt = loadPrompt("derivatives-native", {
+      grass_context: grassContext,
       canonical_title: creatorOutput.title,
       canonical_slug: creatorOutput.slug,
       angle: packet.angle,
