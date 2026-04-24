@@ -1,4 +1,4 @@
-import { mkdirSync, appendFileSync, existsSync } from "node:fs";
+import { mkdirSync, appendFileSync, existsSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { execSync } from "node:child_process";
 import "dotenv/config";
@@ -8,17 +8,28 @@ import "dotenv/config";
  *
  * sync-articles → sync-otterly → sync-gsc → update-llms → scorer
  *
- * Usage: npx tsx src/sync/run-nightly.ts [--otterly-prompts-csv <path>] [--otterly-citations-csv <path>]
+ * Otterly CSVs are auto-discovered from OTTERLY_EXPORTS_DIR (default: otterly-exports/)
+ * by picking the latest prompts-*.csv and citations-*.csv by filename.
  */
-async function main() {
-  const args = process.argv.slice(2);
-  let otterlyPromptsCsv: string | undefined;
-  let otterlyCitationsCsv: string | undefined;
 
-  for (let i = 0; i < args.length; i++) {
-    if (args[i] === "--otterly-prompts-csv") otterlyPromptsCsv = args[++i];
-    if (args[i] === "--otterly-citations-csv") otterlyCitationsCsv = args[++i];
-  }
+function findLatestCsv(dir: string, prefix: string): string | undefined {
+  if (!existsSync(dir)) return undefined;
+  const matches = readdirSync(dir)
+    .filter((f) => f.startsWith(prefix) && f.endsWith(".csv"))
+    .sort();
+  if (matches.length === 0) return undefined;
+  return resolve(dir, matches[matches.length - 1]);
+}
+
+async function main() {
+
+  const projectRoot = resolve(import.meta.dirname, "../..");
+  const otterlyExportsDir = process.env.OTTERLY_EXPORTS_DIR
+    ? resolve(process.env.OTTERLY_EXPORTS_DIR)
+    : resolve(projectRoot, "otterly-exports");
+
+  const otterlyPromptsCsv = findLatestCsv(otterlyExportsDir, "prompts-");
+  const otterlyCitationsCsv = findLatestCsv(otterlyExportsDir, "citations-");
 
   const today = new Date().toISOString().slice(0, 10);
   const logsDir = resolve(import.meta.dirname, "../../data/logs");
@@ -30,8 +41,6 @@ async function main() {
     console.log(line);
     appendFileSync(logPath, line + "\n");
   };
-
-  const projectRoot = resolve(import.meta.dirname, "../..");
 
   const run = (label: string, cmd: string) => {
     log(`Starting: ${label}`);
@@ -59,14 +68,14 @@ async function main() {
   // 1. Sync articles from manifests
   run("sync-articles", "npx tsx src/sync/sync-articles.ts");
 
-  // 2. Sync Otterly (if CSV paths provided)
+  // 2. Sync Otterly (auto-discover latest CSVs from otterly-exports dir)
   if (otterlyPromptsCsv || otterlyCitationsCsv) {
     const otterlyArgs: string[] = [];
     if (otterlyPromptsCsv) otterlyArgs.push("--prompts-csv", otterlyPromptsCsv);
     if (otterlyCitationsCsv) otterlyArgs.push("--citations-csv", otterlyCitationsCsv);
     run("sync-otterly", `npx tsx src/sync/sync-otterly.ts ${otterlyArgs.join(" ")}`);
   } else {
-    log("Skipping sync-otterly (no CSV paths provided)");
+    log(`Skipping sync-otterly (no CSVs found in ${otterlyExportsDir})`);
   }
 
   // 3. Sync GSC
