@@ -5,6 +5,7 @@ import { ScoutOutputSchema, type ScoutOutput } from "../models/scout-output.js";
 import { callClaude, extractJson } from "../claude.js";
 import { loadPrompt } from "../prompts/load.js";
 import { loadContextForConsumer, buildContextString } from "../context/load-context.js";
+import { loadRegistry } from "../registry/registry.js";
 import { z } from "zod";
 
 /**
@@ -75,6 +76,7 @@ export async function runCreator(
   });
 
   const text = await callClaude(prompt, "claude-sonnet-4-6");
+  const topicTag = loadRegistry().surfaces.find(s => s.id === packet.surface_id)?.topic_tag;
 
   try {
     const jsonMarker = "---JSON---";
@@ -91,10 +93,12 @@ export async function runCreator(
       parsed = JSON.parse(jsonSection);
       parsed.canonical_markdown = markdownSection;
       parsed.surface_label = packet.surface_label;
+      parsed.topic_tag = topicTag;
     } else {
       // Fallback: try parsing as raw JSON (legacy format)
       parsed = JSON.parse(extractJson(text));
       parsed.surface_label = packet.surface_label;
+      parsed.topic_tag = topicTag;
     }
 
     const output = CreatorOutputSchema.parse(parsed);

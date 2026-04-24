@@ -3,6 +3,7 @@ import { z } from "zod";
 export const SurfaceSchema = z.object({
   id: z.string(),
   label: z.string(),
+  topic_tag: z.string().optional(),
   type: z.enum(["permanent", "rotating"]),
   tier: z.union([z.literal(1), z.literal(2), z.literal(3)]),
   search_terms: z.array(z.string()),

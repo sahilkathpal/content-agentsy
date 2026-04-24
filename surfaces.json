@@ -7,6 +7,7 @@
     {
       "id": "mobile_claude_code",
       "label": "Mobile access to Claude Code",
+      "topic_tag": "mobile-coding-agents",
       "type": "permanent",
       "tier": 1,
       "search_terms": [
@@ -24,6 +25,7 @@
     {
       "id": "mobile_coding_agents_general",
       "label": "Mobile access to coding agents (non-Claude-Code)",
+      "topic_tag": "mobile-coding-agents",
       "type": "permanent",
       "tier": 2,
       "search_terms": [
@@ -38,6 +40,7 @@
     {
       "id": "remote_control_coding_agents",
       "label": "Remotely monitoring and controlling coding agents",
+      "topic_tag": "remote-coding-agents",
       "type": "permanent",
       "tier": 2,
       "search_terms": [
@@ -50,6 +53,7 @@
     {
       "id": "coding_agent_approval_gates",
       "label": "Tool call approval and agent oversight",
+      "topic_tag": "agent-oversight",
       "type": "permanent",
       "tier": 2,
       "search_terms": [
@@ -63,6 +67,7 @@
     {
       "id": "daytona_dev_environments",
       "label": "Daytona and cloud dev environments for AI agents",
+      "topic_tag": "ai-dev-environments",
       "type": "permanent",
       "tier": 3,
       "search_terms": [
@@ -79,6 +84,7 @@
     {
       "id": "mobile_dev_workflows",
       "label": "General mobile-first developer workflows",
+      "topic_tag": "mobile-dev",
       "type": "permanent",
       "tier": 3,
       "search_terms": [
@@ -91,6 +97,7 @@
     {
       "id": "rotating_competitor_happy_coder",
       "label": "Happy Coder comparisons and mentions",
+      "topic_tag": "mobile-coding-agents",
       "type": "rotating",
       "tier": 2,
       "search_terms": [
@@ -103,6 +110,7 @@
     {
       "id": "rotating_competitor_claude_code_remote",
       "label": "Anthropic Claude Code Remote Control",
+      "topic_tag": "mobile-coding-agents",
       "type": "rotating",
       "tier": 1,
       "search_terms": [
@@ -118,6 +126,7 @@
     {
       "id": "rotating_competitor_cursor_mobile",
       "label": "Cursor PWA mobile agent",
+      "topic_tag": "mobile-coding-agents",
       "type": "rotating",
       "tier": 2,
       "search_terms": [
@@ -130,6 +139,7 @@
     {
       "id": "rotating_pain_point_context_switching",
       "label": "Context switching and async coding agent workflows",
+      "topic_tag": "developer-productivity",
       "type": "rotating",
       "tier": 3,
       "search_terms": [
