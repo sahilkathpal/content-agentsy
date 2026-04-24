@@ -57,10 +57,12 @@ export function buildManifest(
     if (pubRaw) {
       try {
         const pub = PublisherOutputSchema.parse(pubRaw);
-        // Build the real URL from slug (Ghost preview URLs use an ID, not the slug)
-        const baseUrl = pub.ghost_post_url.replace(/\/blog\/.*$/, "");
-        canonicalUrl = `${baseUrl}/blog/${pub.ghost_post_slug}/`;
-        canonicalPublishedAt = pub.published_at;
+        if (pub.status === "published") {
+          // Build the real URL from slug (Ghost preview URLs use an ID, not the slug)
+          const baseUrl = pub.ghost_post_url.replace(/\/blog\/.*$/, "");
+          canonicalUrl = `${baseUrl}/blog/${pub.ghost_post_slug}/`;
+          canonicalPublishedAt = pub.published_at;
+        }
       } catch { /* skip */ }
     }
   }

@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync, existsSync } from "node:fs";
+import { mkdirSync, appendFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { execSync } from "node:child_process";
 import "dotenv/config";
@@ -24,11 +24,11 @@ async function main() {
   const logsDir = resolve(import.meta.dirname, "../../data/logs");
   if (!existsSync(logsDir)) mkdirSync(logsDir, { recursive: true });
 
-  const logLines: string[] = [];
+  const logPath = resolve(logsDir, `nightly-${today}.log`);
   const log = (msg: string) => {
     const line = `[${new Date().toISOString()}] ${msg}`;
     console.log(line);
-    logLines.push(line);
+    appendFileSync(logPath, line + "\n");
   };
 
   const projectRoot = resolve(import.meta.dirname, "../..");
@@ -45,7 +45,7 @@ async function main() {
       log(`Completed: ${label}`);
       if (output.trim()) {
         for (const line of output.trim().split("\n")) {
-          logLines.push(`  ${line}`);
+          appendFileSync(logPath, `  ${line}\n`);
         }
       }
     } catch (err: unknown) {
@@ -82,11 +82,7 @@ async function main() {
   run("drain-syndication", "npx tsx src/scripts/drain-syndication-queue.ts");
 
   log("=== Nightly sync complete ===");
-
-  // Write log
-  const logPath = resolve(logsDir, `nightly-${today}.log`);
-  writeFileSync(logPath, logLines.join("\n") + "\n");
-  console.log(`Log written → ${logPath}`);
+  console.log(`Log → ${logPath}`);
 }
 
 main().catch((err) => {

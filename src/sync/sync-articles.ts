@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { getDb, upsertArticle } from "../db/helpers.js";
+import { PublisherOutputSchema } from "../models/publisher-output.js";
 import "dotenv/config";
 
 /**
@@ -51,22 +52,27 @@ function processManifest(manifestPath: string, dir: string): number {
     const entries = JSON.parse(readFileSync(manifestPath, "utf-8"));
     if (!Array.isArray(entries)) return 0;
 
-    // Check for publisher output to get confirmed URLs
+    // Check publisher-output.json — it is authoritative on draft vs published status.
+    // If it exists and says "draft", skip the whole manifest (the post hasn't gone live yet).
+    // If it says "published", use it as the source of truth for the live URL.
     const publisherPath = resolve(dir, "publisher-output.json");
-    let publisherData: Record<string, unknown> | null = null;
+    let publisherData: ReturnType<typeof PublisherOutputSchema.parse> | null = null;
     if (existsSync(publisherPath)) {
       try {
-        publisherData = JSON.parse(readFileSync(publisherPath, "utf-8"));
-      } catch { /* ignore */ }
+        const raw = JSON.parse(readFileSync(publisherPath, "utf-8"));
+        const parsed = PublisherOutputSchema.parse(raw);
+        if (parsed.status !== "published") return 0; // draft — skip entirely
+        publisherData = parsed;
+      } catch { /* ignore — no publisher output yet, fall through to manifest URL */ }
     }
 
     for (const entry of entries) {
-      // Only sync entries with published URLs (canonical assets with real URLs)
+      // Only sync canonical entries with a confirmed published URL
       let url = entry.published_url;
 
-      // Try to get URL from publisher output if not in manifest
-      if (!url && publisherData && publisherData.ghost_post_url) {
-        url = publisherData.ghost_post_url as string;
+      // Fall back to publisher output URL (only set when status === "published")
+      if (!url && publisherData) {
+        url = publisherData.ghost_post_url;
       }
 
       if (!url || entry.asset_type !== "canonical") continue;
