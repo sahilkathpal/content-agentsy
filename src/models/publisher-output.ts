@@ -13,6 +13,7 @@ export const PublisherOutputSchema = z.object({
   pipeline_created_at: z.string(),
   run_dir: z.string().default(""),
   strategist_output_path: z.string().default(""),
+  tags: z.array(z.string()).default([]),
 });
 
 export type PublisherOutput = z.infer<typeof PublisherOutputSchema>;

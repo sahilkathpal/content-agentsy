@@ -1,12 +1,8 @@
 import { readFileSync } from "node:fs";
 import type { SyndicationAsset } from "../models/derivatives-output.js";
-import { CreatorOutputSchema } from "../models/creator-output.js";
+import { CreatorOutputSchema, type CreatorOutput } from "../models/creator-output.js";
 import { StrategistOutputSchema, type DistributionPacket } from "../models/strategist-output.js";
-import { callClaude, extractJson } from "../claude.js";
-import { loadPrompt } from "../prompts/load.js";
-import { loadContextForConsumer, buildContextString } from "../context/load-context.js";
 import { config } from "../config.js";
-import { z } from "zod";
 
 /**
  * Generate syndication assets (platform-specific markdown reformats)
@@ -19,7 +15,8 @@ export async function runSyndicationGenerator(
   creatorPath: string,
   strategistPath: string,
   packetId?: string,
-  canonicalUrl?: string
+  canonicalUrl?: string,
+  tags?: string[]
 ): Promise<SyndicationAsset[]> {
   const creatorOutput = CreatorOutputSchema.parse(
     JSON.parse(readFileSync(creatorPath, "utf-8"))
@@ -44,49 +41,84 @@ export async function runSyndicationGenerator(
     return [];
   }
 
-  return generateSyndication(creatorOutput, packet, canonicalUrl);
+  const canonical = canonicalUrl
+    ?? `${config.ghostUrl.replace(/\/blog\/ghost\/?$|\/ghost\/?$/, "").replace(/\/+$/, "")}/blog/${creatorOutput.slug}/`;
+
+  const resolvedTags = tags ?? deriveTags(creatorOutput);
+  const assets = buildSyndicationAssets(creatorOutput, packet, canonical, resolvedTags);
+  console.log(`  [syndication-generator] ${assets.length} syndication assets built`);
+  return assets;
 }
 
-async function generateSyndication(
-  creatorOutput: z.infer<typeof CreatorOutputSchema>,
+function buildSyndicationAssets(
+  creator: CreatorOutput,
   packet: DistributionPacket,
-  canonicalUrl?: string
-): Promise<SyndicationAsset[]> {
-  try {
-    console.log(
-      `  [syndication-generator] calling Claude for syndication (${packet.syndication_targets.length} targets)…`
-    );
+  canonicalUrl: string,
+  tags: string[]
+): SyndicationAsset[] {
+  return packet.syndication_targets.map((platform) => {
+    switch (platform) {
+      case "dev.to":    return buildDevTo(creator, canonicalUrl, tags);
+      case "hashnode":  return buildHashnode(creator, canonicalUrl, tags);
+      default:          return buildGeneric(platform, creator, canonicalUrl, tags);
+    }
+  });
+}
 
-    const grassContext = buildContextString(loadContextForConsumer("derivatives"));
+function deriveTags(creator: CreatorOutput): string[] {
+  if (!creator.topic_tag) return [];
+  // topic_tag may be comma-separated; normalise to lowercase slugs
+  return creator.topic_tag
+    .split(/[,/]/)
+    .map((t) => t.trim().toLowerCase().replace(/\s+/g, "-"))
+    .filter(Boolean);
+}
 
-    const prompt = loadPrompt("derivatives-syndication", {
-      grass_context: grassContext,
-      canonical_title: creatorOutput.title,
-      canonical_slug: creatorOutput.slug,
-      meta_description: creatorOutput.meta_description,
-      voice_type: packet.voice_type,
-      syndication_targets_json: JSON.stringify(packet.syndication_targets, null, 2),
-      canonical_markdown: creatorOutput.canonical_markdown,
-      canonical_url: canonicalUrl ?? `${config.ghostUrl.replace(/\/+$/, "")}/blog/${creatorOutput.slug}`,
-    });
+function backlink(canonicalUrl: string): string {
+  return `\n\n---\n*Originally published at [codeongrass.com](${canonicalUrl})*`;
+}
 
-    const text = await callClaude(prompt, "claude-sonnet-4-6", { maxTurns: 1 });
+function buildDevTo(creator: CreatorOutput, canonicalUrl: string, tags: string[]): SyndicationAsset {
+  return {
+    platform: "dev.to",
+    title: creator.title,
+    frontmatter: {
+      title: creator.title,
+      tags: tags.slice(0, 4),
+      canonical_url: canonicalUrl,
+      cover_image: "",
+    },
+    markdown: creator.canonical_markdown + backlink(canonicalUrl),
+    canonical_url_backlink: canonicalUrl,
+  };
+}
 
-    const parsed = JSON.parse(extractJson(text));
-    const assets = z.array(
-      z.object({
-        platform: z.string(),
-        title: z.string(),
-        frontmatter: z.record(z.union([z.string(), z.boolean(), z.number(), z.array(z.string())])),
-        markdown: z.string(),
-        canonical_url_backlink: z.string(),
-      })
-    ).parse(parsed);
+function buildHashnode(creator: CreatorOutput, canonicalUrl: string, tags: string[]): SyndicationAsset {
+  return {
+    platform: "hashnode",
+    title: creator.title,
+    frontmatter: {
+      title: creator.title,
+      slug: creator.slug,
+      tags: tags.slice(0, 5),
+      canonical: canonicalUrl,
+      enableTableOfContents: true,
+    },
+    markdown: creator.canonical_markdown + backlink(canonicalUrl),
+    canonical_url_backlink: canonicalUrl,
+  };
+}
 
-    console.log(`  [syndication-generator] ${assets.length} syndication assets generated`);
-    return assets;
-  } catch (err) {
-    console.warn("  [syndication-generator] syndication call failed:", err instanceof Error ? err.message : String(err));
-    return [];
-  }
+function buildGeneric(platform: string, creator: CreatorOutput, canonicalUrl: string, tags: string[]): SyndicationAsset {
+  return {
+    platform,
+    title: creator.title,
+    frontmatter: {
+      title: creator.title,
+      tags,
+      canonical_url: canonicalUrl,
+    },
+    markdown: creator.canonical_markdown + backlink(canonicalUrl),
+    canonical_url_backlink: canonicalUrl,
+  };
 }

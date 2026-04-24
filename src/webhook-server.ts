@@ -206,7 +206,8 @@ async function handleWebhook(req: IncomingMessage, res: ServerResponse): Promise
     // Phase 1: Generate syndication assets
     console.log(`[webhook-server] generating syndication assets for packet ${publisherOutput.packet_id}`);
     const syndicationAssets = await runSyndicationGenerator(
-      creatorPath, strategistPath, publisherOutput.packet_id, ghostPostUrl
+      creatorPath, strategistPath, publisherOutput.packet_id, ghostPostUrl,
+      publisherOutput.tags.length > 0 ? publisherOutput.tags : undefined
     );
 
     // Write syndication-output.json

@@ -292,6 +292,7 @@ export async function runPublisher(
     pipeline_created_at: new Date().toISOString(),
     run_dir: "",
     strategist_output_path: "",
+    tags: tags.map((t) => t.name).filter((n) => !n.startsWith("#")),
   };
 
   writeFileSync(outPath, JSON.stringify(output, null, 2));
