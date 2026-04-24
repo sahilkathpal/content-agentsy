@@ -40,7 +40,7 @@ export async function runAnalyst(
     threshold_breaches: thresholdBreaches,
   });
 
-  const text = await callClaude(prompt);
+  const text = await callClaude(prompt, "claude-haiku-4-5", { maxTurns: 1 });
 
   try {
     const parsed = JSON.parse(extractJson(text));

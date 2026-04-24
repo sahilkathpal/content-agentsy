@@ -39,16 +39,16 @@ export async function runStructuring(
     search_terms: surface.search_terms.join(", "),
     collected_at: new Date().toISOString(),
     community_pain_count: String(rawBuckets.community_pain.length),
-    community_pain_json: JSON.stringify(rawBuckets.community_pain.slice(0, 30), null, 2),
+    community_pain_json: JSON.stringify(rawBuckets.community_pain.slice(0, 30)),
     official_change_count: String(rawBuckets.official_change.length),
-    official_change_json: JSON.stringify(rawBuckets.official_change.slice(0, 20), null, 2),
+    official_change_json: JSON.stringify(rawBuckets.official_change.slice(0, 20)),
     demand_count: String(rawBuckets.demand.length),
-    demand_json: JSON.stringify(rawBuckets.demand.slice(0, 20), null, 2),
+    demand_json: JSON.stringify(rawBuckets.demand.slice(0, 20)),
     market_framing_count: String(rawBuckets.market_framing.length),
-    market_framing_json: JSON.stringify(rawBuckets.market_framing.slice(0, 20), null, 2),
+    market_framing_json: JSON.stringify(rawBuckets.market_framing.slice(0, 20)),
   });
 
-  const text = await callClaude(prompt);
+  const text = await callClaude(prompt, "claude-haiku-4-5", { maxTurns: 1 });
 
   try {
     const parsed = JSON.parse(extractJson(text));

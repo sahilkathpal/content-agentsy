@@ -43,12 +43,12 @@ export async function runStrategist(
     run_id: runId,
     surfaces_count: String(scoutOutputs.length),
     opportunities_count: String(totalOpportunities),
-    scout_output_json: JSON.stringify(scoutOutputs, null, 2),
+    scout_output_json: JSON.stringify(scoutOutputs),
     analyzed_at: now,
     blog_index: blogIndex && blogIndex.trim() ? blogIndex : "(none)",
   });
 
-  const text = await callClaude(prompt, "claude-sonnet-4-6");
+  const text = await callClaude(prompt, "claude-sonnet-4-6", { maxTurns: 1 });
 
   try {
     const parsed = JSON.parse(extractJson(text));

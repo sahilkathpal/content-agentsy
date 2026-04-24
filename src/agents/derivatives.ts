@@ -54,19 +54,15 @@ export async function runDerivatives(
   let syndicationAssets: SyndicationAsset[] = [];
   let nativeUnits: NativeUnit[] = [];
 
-  // Call 1 — Syndication (if targets exist)
-  if (packet.syndication_targets.length > 0) {
-    syndicationAssets = await generateSyndication(creatorOutput, packet, canonicalUrl);
-  } else {
-    console.log("  [derivatives] no syndication targets, skipping");
-  }
-
-  // Call 2 — Native units (if targets exist)
-  if (packet.native_units.length > 0) {
-    nativeUnits = await generateNativeUnits(creatorOutput, packet);
-  } else {
-    console.log("  [derivatives] no native unit targets, skipping");
-  }
+  // Call 1 & 2 — Syndication and native units are independent; run in parallel
+  [syndicationAssets, nativeUnits] = await Promise.all([
+    packet.syndication_targets.length > 0
+      ? generateSyndication(creatorOutput, packet, canonicalUrl)
+      : (console.log("  [derivatives] no syndication targets, skipping"), Promise.resolve([])),
+    packet.native_units.length > 0
+      ? generateNativeUnits(creatorOutput, packet)
+      : (console.log("  [derivatives] no native unit targets, skipping"), Promise.resolve([])),
+  ]);
 
   // Assemble output
   const now = new Date().toISOString();
@@ -115,7 +111,7 @@ async function generateSyndication(
       canonical_url: canonicalUrl ?? `${config.ghostUrl.replace(/\/+$/, "")}/blog/${creatorOutput.slug}`,
     });
 
-    const text = await callClaude(prompt, "claude-sonnet-4-6");
+    const text = await callClaude(prompt, "claude-sonnet-4-6", { maxTurns: 1 });
 
     const parsed = JSON.parse(extractJson(text));
     const assets = z.array(
@@ -161,7 +157,7 @@ async function generateNativeUnits(
       canonical_markdown: condensed,
     });
 
-    const text = await callClaude(prompt, "claude-sonnet-4-6");
+    const text = await callClaude(prompt, "claude-haiku-4-5", { maxTurns: 1 });
 
     const parsed = JSON.parse(extractJson(text));
     const units = z.array(z.any()).parse(parsed);

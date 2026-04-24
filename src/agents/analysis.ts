@@ -34,11 +34,11 @@ export async function runAnalysis(
     tier: String(surface.tier),
     type: surface.type,
     signals_count: String(signals.length),
-    signals_json: JSON.stringify(signals, null, 2),
+    signals_json: JSON.stringify(signals),
     analyzed_at: now,
   });
 
-  const text = await callClaude(prompt, "claude-sonnet-4-6");
+  const text = await callClaude(prompt, "claude-sonnet-4-6", { maxTurns: 1 });
 
   try {
     const parsed = JSON.parse(extractJson(text));

@@ -11,7 +11,7 @@ import type { PipelineContext } from "../pipeline.js";
 /**
  * Concurrency-limited parallel execution.
  */
-async function withConcurrency<T>(
+export async function withConcurrency<T>(
   items: T[],
   maxConcurrent: number,
   fn: (item: T) => Promise<void>,

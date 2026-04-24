@@ -4,6 +4,7 @@ import { runCreator } from "../agents/creator.js";
 import { searchAuthorityLinks } from "../sources/authority-search.js";
 import { SignalSchema } from "../models/signal.js";
 import type { PipelineContext } from "../pipeline.js";
+import { withConcurrency } from "./scout.js";
 import { z } from "zod";
 
 /**
@@ -38,9 +39,10 @@ export async function runCreatorStage(ctx: PipelineContext): Promise<void> {
   }
 
   let successCount = 0;
+  const concurrency = ctx.opts.maxConcurrent ?? 2;
+  const indexedPackets = packetIds.map((id, i) => ({ id, i }));
 
-  for (let i = 0; i < packetIds.length; i++) {
-    const pktId = packetIds[i];
+  await withConcurrency(indexedPackets, concurrency, async ({ id: pktId, i }) => {
     const packetDir = resolve(ctx.runDir, `packet-${i + 1}`);
     mkdirSync(packetDir, { recursive: true });
 
@@ -113,7 +115,7 @@ export async function runCreatorStage(ctx: PipelineContext): Promise<void> {
     } else {
       console.log(`  [creator] no output for packet ${pktId}`);
     }
-  }
+  });
 
   if (successCount === 0) {
     throw new Error("Creator produced no output for any packet");
