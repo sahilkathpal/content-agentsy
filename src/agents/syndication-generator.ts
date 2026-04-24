@@ -70,7 +70,7 @@ async function generateSyndication(
       canonical_url: canonicalUrl ?? `${config.ghostUrl.replace(/\/+$/, "")}/blog/${creatorOutput.slug}`,
     });
 
-    const text = await callClaude(prompt, "claude-haiku-4-5", { maxTurns: 1 });
+    const text = await callClaude(prompt, "claude-sonnet-4-6", { maxTurns: 1 });
 
     const parsed = JSON.parse(extractJson(text));
     const assets = z.array(
