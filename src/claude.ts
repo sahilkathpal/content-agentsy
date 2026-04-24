@@ -16,10 +16,13 @@ export interface CallClaudeOpts {
  *   2. If no fence found, slice from the first `{` or `[` in the response.
  */
 export function extractJson(text: string): string {
-  const fenceMatch = text.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/);
-  if (fenceMatch) {
-    return fenceMatch[1].trim();
-  }
+  // Prefer explicit ```json fence
+  const jsonFence = text.match(/```json\s*\n?([\s\S]*?)\n?```/);
+  if (jsonFence) return jsonFence[1].trim();
+
+  // Fall back to plain ``` fence with no language tag (skip ```bash, ```ts, etc.)
+  const plainFence = text.match(/```\s*\n([\s\S]*?)\n?```/);
+  if (plainFence) return plainFence[1].trim();
   // Fallback: find first structural character
   const firstBrace = text.indexOf("{");
   const firstBracket = text.indexOf("[");
