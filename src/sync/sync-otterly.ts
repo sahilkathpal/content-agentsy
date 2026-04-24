@@ -6,20 +6,14 @@ const OTTERLY_ENGINES = ["chatgpt", "perplexity", "google_aio", "copilot"];
 
 /**
  * Sync Otterly CSV exports into SQLite.
- * Usage: npx tsx src/sync/sync-otterly.ts --prompts-csv <path> --citations-csv <path>
+ * Paths are read from env vars: OTTERLY_PROMPTS_CSV and OTTERLY_CITATIONS_CSV
  */
 async function main() {
-  const args = process.argv.slice(2);
-  let promptsCsvPath: string | undefined;
-  let citationsCsvPath: string | undefined;
-
-  for (let i = 0; i < args.length; i++) {
-    if (args[i] === "--prompts-csv") promptsCsvPath = args[++i];
-    if (args[i] === "--citations-csv") citationsCsvPath = args[++i];
-  }
+  const promptsCsvPath = process.env.OTTERLY_PROMPTS_CSV;
+  const citationsCsvPath = process.env.OTTERLY_CITATIONS_CSV;
 
   if (!promptsCsvPath && !citationsCsvPath) {
-    console.error("Usage: sync-otterly --prompts-csv <path> --citations-csv <path>");
+    console.error("Set OTTERLY_PROMPTS_CSV and/or OTTERLY_CITATIONS_CSV in your .env");
     process.exit(1);
   }
 
