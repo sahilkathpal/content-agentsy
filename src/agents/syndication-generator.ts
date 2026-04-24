@@ -74,6 +74,10 @@ function deriveTags(creator: CreatorOutput): string[] {
     .filter(Boolean);
 }
 
+function stripLeadingH1(markdown: string): string {
+  return markdown.replace(/^#[^\n]*\n+/, "");
+}
+
 function backlink(canonicalUrl: string): string {
   return `\n\n---\n*Originally published at [codeongrass.com](${canonicalUrl})*`;
 }
@@ -88,7 +92,7 @@ function buildDevTo(creator: CreatorOutput, canonicalUrl: string, tags: string[]
       canonical_url: canonicalUrl,
       cover_image: "",
     },
-    markdown: creator.canonical_markdown + backlink(canonicalUrl),
+    markdown: stripLeadingH1(creator.canonical_markdown) + backlink(canonicalUrl),
     canonical_url_backlink: canonicalUrl,
   };
 }
@@ -104,7 +108,7 @@ function buildHashnode(creator: CreatorOutput, canonicalUrl: string, tags: strin
       canonical: canonicalUrl,
       enableTableOfContents: true,
     },
-    markdown: creator.canonical_markdown + backlink(canonicalUrl),
+    markdown: stripLeadingH1(creator.canonical_markdown) + backlink(canonicalUrl),
     canonical_url_backlink: canonicalUrl,
   };
 }
@@ -118,7 +122,7 @@ function buildGeneric(platform: string, creator: CreatorOutput, canonicalUrl: st
       tags,
       canonical_url: canonicalUrl,
     },
-    markdown: creator.canonical_markdown + backlink(canonicalUrl),
+    markdown: stripLeadingH1(creator.canonical_markdown) + backlink(canonicalUrl),
     canonical_url_backlink: canonicalUrl,
   };
 }

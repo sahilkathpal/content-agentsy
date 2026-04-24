@@ -83,15 +83,16 @@ async function publishToHashnode(
 ): Promise<PlatformResult> {
   // Build tag slugs from frontmatter
   const rawTags = asset.frontmatter.tags;
-  let tagSlugs: Array<{ slug: string }> = [];
+  const toTagInput = (t: string) => {
+    const slug = t.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    const name = t.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+    return { slug, name };
+  };
+  let tagSlugs: Array<{ slug: string; name: string }> = [];
   if (Array.isArray(rawTags)) {
-    tagSlugs = rawTags.map((t) => ({ slug: String(t).toLowerCase().replace(/[^a-z0-9]+/g, "-") }));
+    tagSlugs = rawTags.map((t) => toTagInput(String(t)));
   } else if (typeof rawTags === "string") {
-    tagSlugs = rawTags
-      .split(",")
-      .map((t) => t.trim())
-      .filter(Boolean)
-      .map((t) => ({ slug: t.toLowerCase().replace(/[^a-z0-9]+/g, "-") }));
+    tagSlugs = rawTags.split(",").map((t) => t.trim()).filter(Boolean).map(toTagInput);
   }
 
   // Derive slug from title
