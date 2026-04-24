@@ -60,7 +60,7 @@ function buildBlogPostingSchema(creator: CreatorOutput, siteUrl: string, siteNam
 
 /**
  * Build the Ghost tags array for a post.
- * Returns 3 tags: topic (from surface_id), content type (from intent_mode), and
+ * Returns 3 tags: topic (from surface_label or surface_id), content type (from intent_mode), and
  * the internal #pipeline marker.
  */
 function buildTags(creator: CreatorOutput): Array<{ name: string }> {
@@ -69,8 +69,11 @@ function buildTags(creator: CreatorOutput): Array<{ name: string }> {
     M1_EVALUATE: "comparison",
     M2_EXECUTE: "guide",
   };
+  const topicTag = creator.surface_label
+    ? creator.surface_label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")
+    : creator.surface_id.replace(/^rotating_/, "").replace(/_/g, "-");
   return [
-    { name: creator.surface_id.replace(/_/g, "-") },
+    { name: topicTag },
     { name: intentTagMap[creator.intent_mode] ?? creator.intent_mode },
     { name: "#pipeline" },
   ];
@@ -121,7 +124,7 @@ async function extractBrandTags(markdown: string): Promise<Array<{ name: string 
       "utf-8"
     );
     const prompt = template.replace("{{canonical_markdown}}", markdown);
-    const text = await callClaude(prompt, "claude-haiku-4-5");
+    const text = await callClaude(prompt, "claude-haiku-4-5", { maxTurns: 1 });
     const parsed = JSON.parse(extractJson(text)) as { brands: string[] };
     const brands = (parsed.brands ?? []).slice(0, 8);
     console.log(`[publisher] Brand tags extracted: ${brands.join(", ")}`);

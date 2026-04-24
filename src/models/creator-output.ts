@@ -3,6 +3,7 @@ import { z } from "zod";
 export const CreatorOutputSchema = z.object({
   packet_id: z.string(),
   surface_id: z.string(),
+  surface_label: z.string().optional(),
   intent_mode: z.enum(["M0_RESOLVE", "M1_EVALUATE", "M2_EXECUTE"]),
   title: z.string(),
   slug: z.string(),

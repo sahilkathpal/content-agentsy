@@ -90,9 +90,11 @@ export async function runCreator(
       const markdownSection = text.slice(markdownStart + markdownMarker.length).trim();
       parsed = JSON.parse(jsonSection);
       parsed.canonical_markdown = markdownSection;
+      parsed.surface_label = packet.surface_label;
     } else {
       // Fallback: try parsing as raw JSON (legacy format)
       parsed = JSON.parse(extractJson(text));
+      parsed.surface_label = packet.surface_label;
     }
 
     const output = CreatorOutputSchema.parse(parsed);
