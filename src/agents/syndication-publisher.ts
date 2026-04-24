@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { config } from "../config.js";
-import { DerivativesOutputSchema, type SyndicationAsset } from "../models/derivatives-output.js";
+import { SyndicationOutputSchema } from "../models/syndication-output.js";
+import type { SyndicationAsset } from "../models/derivatives-output.js";
 import type { PlatformResult, SyndicationPublisherOutput } from "../models/syndication-publisher-output.js";
 
 /**
@@ -28,14 +29,14 @@ async function publishToDevTo(asset: SyndicationAsset, apiKey: string): Promise<
     article: {
       title: asset.title,
       body_markdown: asset.markdown,
-      published: false,
+      published: true,
       tags,
       canonical_url: asset.canonical_url_backlink,
       description,
     },
   };
 
-  console.log(`[syndication-publisher] Dev.to → creating draft: "${asset.title}"`);
+  console.log(`[syndication-publisher] Dev.to → publishing: "${asset.title}"`);
 
   const resp = await fetch("https://dev.to/api/articles", {
     method: "POST",
@@ -60,11 +61,11 @@ async function publishToDevTo(asset: SyndicationAsset, apiKey: string): Promise<
   }
 
   const data = (await resp.json()) as { id: number; url: string };
-  console.log(`[syndication-publisher] Dev.to draft created → ${data.url}`);
+  console.log(`[syndication-publisher] Dev.to published → ${data.url}`);
 
   return {
     platform: "dev.to",
-    status: "draft_created",
+    status: "published",
     remote_id: String(data.id),
     remote_url: data.url,
     error: null,
@@ -100,12 +101,13 @@ async function publishToHashnode(
     .replace(/^-|-$/g, "");
 
   const mutation = `
-    mutation CreateDraft($input: CreateDraftInput!) {
-      createDraft(input: $input) {
-        draft {
+    mutation PublishPost($input: PublishPostInput!) {
+      publishPost(input: $input) {
+        post {
           id
           title
           slug
+          url
         }
       }
     }
@@ -122,7 +124,7 @@ async function publishToHashnode(
     },
   };
 
-  console.log(`[syndication-publisher] Hashnode → creating draft: "${asset.title}"`);
+  console.log(`[syndication-publisher] Hashnode → publishing: "${asset.title}"`);
 
   const resp = await fetch("https://gql.hashnode.com", {
     method: "POST",
@@ -147,7 +149,7 @@ async function publishToHashnode(
   }
 
   const data = (await resp.json()) as {
-    data?: { createDraft?: { draft?: { id: string; title: string; slug: string } } };
+    data?: { publishPost?: { post?: { id: string; title: string; slug: string; url: string } } };
     errors?: Array<{ message: string }>;
   };
 
@@ -163,42 +165,43 @@ async function publishToHashnode(
     };
   }
 
-  const draft = data.data?.createDraft?.draft;
-  if (!draft) {
+  const post = data.data?.publishPost?.post;
+  if (!post) {
     return {
       platform: "hashnode",
       status: "failed",
       remote_id: null,
       remote_url: null,
-      error: "No draft returned from Hashnode API",
+      error: "No post returned from Hashnode API",
     };
   }
 
-  console.log(`[syndication-publisher] Hashnode draft created → ${draft.id}`);
+  console.log(`[syndication-publisher] Hashnode published → ${post.url}`);
 
   return {
     platform: "hashnode",
-    status: "draft_created",
-    remote_id: draft.id,
-    remote_url: null, // Hashnode drafts don't have public URLs
+    status: "published",
+    remote_id: post.id,
+    remote_url: post.url,
     error: null,
   };
 }
 
 /**
- * Read derivatives output and publish syndication assets to Dev.to and Hashnode as drafts.
+ * Read syndication output and publish assets to Dev.to and Hashnode.
  * No LLM call — pure API integration.
  */
 export async function runSyndicationPublisher(
-  derivativesPath: string,
+  syndicationPath: string,
   outPath: string,
   canonicalUrlOverride?: string
 ): Promise<SyndicationPublisherOutput | null> {
-  const raw = JSON.parse(readFileSync(derivativesPath, "utf-8"));
-  const derivatives = DerivativesOutputSchema.parse(raw);
+  const raw = JSON.parse(readFileSync(syndicationPath, "utf-8"));
+  const syndicationOutput = SyndicationOutputSchema.parse(raw);
+  const syndicationAssets = syndicationOutput.assets;
 
   if (canonicalUrlOverride) {
-    for (const asset of derivatives.syndication_assets) {
+    for (const asset of syndicationAssets) {
       asset.canonical_url_backlink = canonicalUrlOverride;
       if ("canonical_url" in asset.frontmatter) asset.frontmatter.canonical_url = canonicalUrlOverride;
       if ("canonical"     in asset.frontmatter) asset.frontmatter.canonical     = canonicalUrlOverride;
@@ -212,7 +215,7 @@ export async function runSyndicationPublisher(
   const hashnodePublicationId = config.hashnodePublicationId;
 
   // Find dev.to syndication asset
-  const devtoAsset = derivatives.syndication_assets.find(
+  const devtoAsset = syndicationAssets.find(
     (a) => a.platform.toLowerCase().replace(/[^a-z.]/g, "") === "dev.to"
   );
 
@@ -233,7 +236,7 @@ export async function runSyndicationPublisher(
   }
 
   // Find hashnode syndication asset
-  const hashnodeAsset = derivatives.syndication_assets.find(
+  const hashnodeAsset = syndicationAssets.find(
     (a) => a.platform.toLowerCase().includes("hashnode")
   );
 
@@ -258,22 +261,22 @@ export async function runSyndicationPublisher(
   }
 
   if (results.length === 0) {
-    console.log("[syndication-publisher] No dev.to or hashnode syndication assets found in derivatives");
+    console.log("[syndication-publisher] No dev.to or hashnode assets found in syndication output");
     return null;
   }
 
   const output: SyndicationPublisherOutput = {
-    packet_id: derivatives.packet_id,
+    packet_id: syndicationOutput.packet_id,
     results,
     created_at: new Date().toISOString(),
   };
 
   writeFileSync(outPath, JSON.stringify(output, null, 2));
 
-  const created = results.filter((r) => r.status === "draft_created").length;
+  const published = results.filter((r) => r.status === "published").length;
   const skipped = results.filter((r) => r.status === "skipped").length;
   const failed = results.filter((r) => r.status === "failed").length;
-  console.log(`[syndication-publisher] Done: ${created} created, ${skipped} skipped, ${failed} failed`);
+  console.log(`[syndication-publisher] Done: ${published} published, ${skipped} skipped, ${failed} failed`);
 
   return output;
 }

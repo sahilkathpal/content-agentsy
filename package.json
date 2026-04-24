@@ -13,7 +13,9 @@
     "llms": "tsx src/scripts/update-llms.ts",
     "scorecard": "tsx src/agents/scorer.ts",
     "dashboard": "tsx src/dashboard.ts",
-    "extract-context": "tsx src/extractor/index.ts"
+    "extract-context": "tsx src/extractor/index.ts",
+    "drain-syndication": "tsx src/scripts/drain-syndication-queue.ts",
+    "backfill-syndication": "tsx src/scripts/backfill-syndication-queue.ts"
   },
   "dependencies": {
     "better-sqlite3": "^12.9.0",

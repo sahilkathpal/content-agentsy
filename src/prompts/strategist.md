@@ -36,7 +36,7 @@ For each opportunity, generate the **best 1-2 distribution packets** — not eve
 
 **For each packet, build the full distribution plan:**
 - `canonical_asset`: What the main piece of content is (e.g. "Blog post: How to configure X")
-- `syndication_targets`: Where to cross-post or repurpose (e.g. ["dev.to", "hashnode"])
+- `syndication_targets`: Populate with the supported platforms (`{{syndication_platforms}}`) if and only if `primary_channel` is `blog` AND the post is a complete, standalone read (tutorial, guide, comparison, deep-dive). Leave empty for threads, Reddit posts, announcements, or any content that isn't a self-contained article. Do not use any platform not in this list.
 - `proof_artifacts`: Specific evidence to include (screenshots, benchmarks, quotes)
 - `native_units`: Conversation-layer assets (e.g. ["X thread summarizing key points", "LinkedIn post"])
 - `participation_targets`: Existing discussions to join (e.g. ["reddit.com/r/foo/comments/abc", "github.com/org/repo/discussions/123"])

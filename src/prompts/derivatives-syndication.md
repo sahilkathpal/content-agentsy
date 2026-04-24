@@ -31,7 +31,7 @@ For each syndication target listed above, produce a reformatted version of the c
 ### Per-platform rules
 
 #### dev.to
-- Frontmatter: `title`, `published` (false), `tags` (up to 4, lowercase, no spaces), `canonical_url`, `cover_image` (leave empty string)
+- Frontmatter: `title`, `tags` (up to 4, lowercase, no spaces), `canonical_url`, `cover_image` (leave empty string)
 - Body: keep full markdown, ensure code blocks have language tags
 - Add canonical URL backlink at the bottom: `*Originally published at [your-site.com](canonical_url)*`
 

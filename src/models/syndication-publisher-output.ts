@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const PlatformResultSchema = z.object({
   platform: z.enum(["dev.to", "hashnode"]),
-  status: z.enum(["draft_created", "skipped", "failed"]),
+  status: z.enum(["published", "skipped", "failed"]),
   remote_id: z.string().nullable(),
   remote_url: z.string().nullable(),
   error: z.string().nullable(),

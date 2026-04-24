@@ -3,18 +3,22 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { readFileSync, writeFileSync, existsSync, readdirSync, mkdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { config, requireKey, webhookPort } from "./config.js";
-import { runDerivatives } from "./agents/derivatives.js";
-import { runSyndicationPublisher } from "./agents/syndication-publisher.js";
+import { runSyndicationGenerator } from "./agents/syndication-generator.js";
+import { enqueue } from "./syndication-queue.js";
 import { PublisherOutputSchema } from "./models/publisher-output.js";
-import type { DerivativesOutput } from "./models/derivatives-output.js";
+import { SyndicationOutputSchema, type SyndicationOutput } from "./models/syndication-output.js";
+import type { SyndicationAsset } from "./models/derivatives-output.js";
 
 const MAX_BODY_SIZE = 1024 * 1024; // 1 MB
 
-function writeDerivativesPreviews(derivativesOutput: DerivativesOutput, runDir: string): void {
+function writeDerivativesPreviews(
+  syndicationAssets: SyndicationAsset[],
+  runDir: string
+): void {
   const previewDir = resolve(runDir, "derivatives-preview");
   mkdirSync(previewDir, { recursive: true });
 
-  for (const asset of derivativesOutput.syndication_assets) {
+  for (const asset of syndicationAssets) {
     const frontmatterLines = Object.entries(asset.frontmatter)
       .map(([k, v]) => `${k}: ${Array.isArray(v) ? `[${v.join(", ")}]` : v}`)
       .join("\n");
@@ -23,19 +27,6 @@ function writeDerivativesPreviews(derivativesOutput: DerivativesOutput, runDir: 
     writeFileSync(resolve(previewDir, filename), content);
   }
 
-  for (const unit of derivativesOutput.native_units) {
-    if (unit.platform === "x_twitter") {
-      const lines = [`# X/Twitter Thread\n`, `**Hook:** ${unit.hook}\n`];
-      for (const seg of unit.segments) {
-        lines.push(`### Tweet ${seg.position}\n${seg.text}${seg.has_link ? " 🔗" : ""}\n`);
-      }
-      lines.push(`**CTA:** ${unit.thread_cta}\n`);
-      writeFileSync(resolve(previewDir, "native-x-thread.md"), lines.join("\n"));
-    } else if (unit.platform === "linkedin") {
-      const content = `# LinkedIn Post\n\n**Hook:** ${unit.hook_line}\n\n${unit.text}\n\n**Link:** ${unit.canonical_link}\n\n**Hashtags:** ${unit.hashtags.join(" ")}\n`;
-      writeFileSync(resolve(previewDir, "native-linkedin.md"), content);
-    }
-  }
 
   console.log(`  [webhook-server] derivative previews written → ${previewDir}`);
 }
@@ -212,23 +203,32 @@ async function handleWebhook(req: IncomingMessage, res: ServerResponse): Promise
       return;
     }
 
-    const derivativesPath = resolve(packetDir, "derivatives-output.json");
-
-    console.log(`[webhook-server] running derivatives for packet ${publisherOutput.packet_id}`);
-    const derivativesOutput = await runDerivatives(
-      creatorPath,
-      strategistPath,
-      derivativesPath,
-      publisherOutput.packet_id,
-      ghostPostUrl
+    // Phase 1: Generate syndication assets
+    console.log(`[webhook-server] generating syndication assets for packet ${publisherOutput.packet_id}`);
+    const syndicationAssets = await runSyndicationGenerator(
+      creatorPath, strategistPath, publisherOutput.packet_id, ghostPostUrl
     );
 
-    if (derivativesOutput) {
-      writeDerivativesPreviews(derivativesOutput, packetDir);
-    }
+    // Write syndication-output.json
+    const syndicationOutputPath = resolve(packetDir, "syndication-output.json");
+    const syndicationOutput: SyndicationOutput = SyndicationOutputSchema.parse({
+      packet_id: publisherOutput.packet_id,
+      canonical_slug: publisherOutput.ghost_post_slug,
+      canonical_url: ghostPostUrl ?? "",
+      assets: syndicationAssets,
+      created_at: new Date().toISOString(),
+    });
+    writeFileSync(syndicationOutputPath, JSON.stringify(syndicationOutput, null, 2));
 
-    console.log(`[webhook-server] running syndication publisher for packet ${publisherOutput.packet_id}`);
-    const syndicationOutput = await runSyndicationPublisher(derivativesPath, syndicationOutPath, ghostPostUrl);
+    // Write preview files
+    writeDerivativesPreviews(syndicationAssets, packetDir);
+
+    // Phase 2: Enqueue syndication assets for rate-limited publishing
+    enqueue({
+      packet_id: publisherOutput.packet_id,
+      syndication_path: syndicationOutputPath,
+      canonical_url: ghostPostUrl ?? "",
+    });
 
     // Update publisher-output.json with published status
     const publisherOutPath = resolve(packetDir, "publisher-output.json");
@@ -242,7 +242,7 @@ async function handleWebhook(req: IncomingMessage, res: ServerResponse): Promise
       status: "ok",
       packet_id:      publisherOutput.packet_id,
       ghost_post_url: ghostPostUrl,
-      syndication_results: syndicationOutput?.results ?? [],
+      syndication: "queued",
     }));
   } catch (err) {
     console.error("[webhook-server] error processing webhook:", err);

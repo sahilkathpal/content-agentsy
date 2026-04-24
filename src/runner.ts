@@ -178,6 +178,7 @@ function runBuildManifest(): void {
         tryRead(resolve(packetDir, "derivatives-output.json")),
         tryRead(resolve(packetDir, "publisher-output.json")),
         tryRead(resolve(packetDir, "syndication-publisher-output.json")),
+        tryRead(resolve(packetDir, "syndication-output.json")),
       );
       console.log(`\n${sub} manifest entries:`);
       for (const e of entries) console.log(`  ${e.asset_id}: ${e.channel} / ${e.asset_type}`);
@@ -192,6 +193,7 @@ function runBuildManifest(): void {
       tryRead(resolve(runDir, "derivatives-output.json")),
       tryRead(resolve(runDir, "publisher-output.json")),
       tryRead(resolve(runDir, "syndication-publisher-output.json")),
+      tryRead(resolve(runDir, "syndication-output.json")),
     );
     console.log(`\nManifest entries:`);
     for (const e of entries) console.log(`  ${e.asset_id}: ${e.channel} / ${e.asset_type}`);

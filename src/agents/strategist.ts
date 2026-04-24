@@ -1,10 +1,15 @@
 import { readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { StrategistOutputSchema, type StrategistOutput } from "../models/strategist-output.js";
 import { ScoutOutputSchema, type ScoutOutput } from "../models/scout-output.js";
 import { callClaude, extractJson } from "../claude.js";
 import { loadPrompt } from "../prompts/load.js";
 import { loadContextForConsumer, buildContextString } from "../context/load-context.js";
 import { z } from "zod";
+
+const SYNDICATION_PLATFORMS: string[] = JSON.parse(
+  readFileSync(resolve(import.meta.dirname, "../config/syndication-platforms.json"), "utf-8")
+);
 
 /**
  * Read combined scout output, call Claude to rank opportunities into
@@ -46,6 +51,7 @@ export async function runStrategist(
     scout_output_json: JSON.stringify(scoutOutputs),
     analyzed_at: now,
     blog_index: blogIndex && blogIndex.trim() ? blogIndex : "(none)",
+    syndication_platforms: SYNDICATION_PLATFORMS.join(", "),
   });
 
   const text = await callClaude(prompt, "claude-sonnet-4-6", { maxTurns: 1 });

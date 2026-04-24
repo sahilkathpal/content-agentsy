@@ -4,6 +4,7 @@ dist/
 .DS_Store
 .grass-relay-token
 data/runs/
+data/syndication-queue.json
 data/measurement.db
 data/measurement.db-wal
 data/measurement.db-shm

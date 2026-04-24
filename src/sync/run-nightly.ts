@@ -78,6 +78,9 @@ async function main() {
   // 5. Generate scorecard
   run("scorecard", "npx tsx src/agents/scorer.ts");
 
+  // 6. Drain syndication queue (up to 2 posts/day)
+  run("drain-syndication", "npx tsx src/scripts/drain-syndication-queue.ts");
+
   log("=== Nightly sync complete ===");
 
   // Write log

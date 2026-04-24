@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { StrategistOutputSchema, type DistributionPacket } from "./models/strategist-output.js";
 import { CreatorOutputSchema, type CreatorOutput } from "./models/creator-output.js";
 import { DerivativesOutputSchema, type DerivativesOutput } from "./models/derivatives-output.js";
+import { SyndicationOutputSchema } from "./models/syndication-output.js";
 import { PublisherOutputSchema } from "./models/publisher-output.js";
 import { SyndicationPublisherOutputSchema } from "./models/syndication-publisher-output.js";
 import type { AssetEntry } from "./models/asset-manifest.js";
@@ -28,6 +29,7 @@ export function buildManifest(
   derivativesPath?: string | null,
   publisherPath?: string | null,
   syndicationPublisherPath?: string | null,
+  syndicationOutputPath?: string | null,
 ): AssetEntry[] {
   const strategistRaw = JSON.parse(readFileSync(strategistPath, "utf-8"));
   const strategistOutput = StrategistOutputSchema.parse(strategistRaw);
@@ -71,7 +73,7 @@ export function buildManifest(
       try {
         const synPub = SyndicationPublisherOutputSchema.parse(synRaw);
         for (const r of synPub.results) {
-          if (r.remote_url && r.status === "draft_created") {
+          if (r.remote_url && r.status === "published") {
             syndicationUrls.set(r.platform, r.remote_url);
           }
         }
@@ -87,29 +89,36 @@ export function buildManifest(
   canonical.published_at = canonicalPublishedAt;
   entries.push(canonical);
 
-  // 2. Derivatives (syndication + native units)
-  if (derivativesPath) {
+  // 2. Syndication assets (from syndication-output.json if present, else fall back to derivatives-output.json)
+  const syndicationAssetsSource = syndicationOutputPath ?? derivativesPath;
+  if (syndicationAssetsSource) {
     try {
-      const derivRaw = JSON.parse(readFileSync(derivativesPath, "utf-8"));
-      const derivatives: DerivativesOutput = DerivativesOutputSchema.parse(derivRaw);
+      const raw = JSON.parse(readFileSync(syndicationAssetsSource, "utf-8"));
 
-      for (const synAsset of derivatives.syndication_assets) {
+      // Try new syndication-output.json format first, fall back to legacy derivatives-output.json
+      let synAssets: Array<{ platform: string; title: string }> = [];
+      const synParsed = SyndicationOutputSchema.safeParse(raw);
+      if (synParsed.success) {
+        synAssets = synParsed.data.assets;
+      } else {
+        const derivParsed = DerivativesOutputSchema.safeParse(raw);
+        if (derivParsed.success) {
+          synAssets = derivParsed.data.syndication_assets;
+          for (const unit of (derivParsed.data as DerivativesOutput).native_units) {
+            entries.push(buildNativeEntry(packet, unit.platform, creator.title));
+          }
+        }
+      }
+
+      for (const synAsset of synAssets) {
         const entry = buildSyndicationEntry(packet, synAsset.platform, synAsset.title);
-        // Match syndication publisher URL by platform
-        // syndication-publisher uses "dev.to"/"hashnode", derivatives use "dev_to"/"hashnode"
         const platformKey = synAsset.platform === "dev_to" ? "dev.to" : synAsset.platform;
         const remoteUrl = syndicationUrls.get(platformKey);
         if (remoteUrl) entry.published_url = remoteUrl;
         entries.push(entry);
       }
-
-      for (const unit of derivatives.native_units) {
-        entries.push(
-          buildNativeEntry(packet, unit.platform, creator.title),
-        );
-      }
     } catch (err) {
-      console.warn(`[manifest] Could not read derivatives: ${err}`);
+      console.warn(`[manifest] Could not read syndication assets: ${err}`);
     }
   }
 
@@ -218,10 +227,11 @@ export function buildAndWriteManifest(
   derivativesPath?: string | null,
   publisherPath?: string | null,
   syndicationPublisherPath?: string | null,
+  syndicationOutputPath?: string | null,
 ): AssetEntry[] {
   const entries = buildManifest(
     strategistPath, creatorPath, derivativesPath,
-    publisherPath, syndicationPublisherPath,
+    publisherPath, syndicationPublisherPath, syndicationOutputPath,
   );
   writeFileSync(outPath, JSON.stringify(entries, null, 2));
   console.log(`  [manifest] ${entries.length} asset(s) → ${outPath}`);
