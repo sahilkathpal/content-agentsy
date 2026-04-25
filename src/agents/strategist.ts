@@ -116,7 +116,7 @@ export async function runStrategist(
   const allPackets: DistributionPacket[] = [];
   const allDropped: DroppedOpportunity[] = [];
 
-  await withConcurrency(scoutOutputs, 3, async (surface) => {
+  await withConcurrency(scoutOutputs, 1, async (surface) => {
     try {
       const result = await processSurface(surface, grassContext, blogIdx);
       allPackets.push(...result.packets);
