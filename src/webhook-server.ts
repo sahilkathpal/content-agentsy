@@ -63,12 +63,14 @@ function verifyGhostSignature(body: string, header: string | undefined, secret: 
   const timestamp   = Number(tMatch[1]);
 
   // Replay guard: reject if timestamp is more than 5 minutes off
-  if (Math.abs(Date.now() - timestamp * 1000) > 5 * 60 * 1000) {
+  // Ghost sends timestamp in milliseconds (Date.now()), not seconds
+  if (Math.abs(Date.now() - timestamp) > 5 * 60 * 1000) {
     console.warn("[webhook-server] signature timestamp too far from now — possible replay");
     return false;
   }
 
-  const hmac     = createHmac("sha256", secret).update(body).digest();
+  // Ghost signs body + timestamp, not body alone
+  const hmac     = createHmac("sha256", secret).update(body + tMatch[1]).digest();
   const expected = Buffer.from(expectedHex, "hex");
   if (hmac.length !== expected.length) return false;
 
@@ -123,6 +125,57 @@ function findPacketDir(ghostPostId: string): { packetDir: string; publisherOutpu
   }
 
   return null;
+}
+
+async function processInBackground(
+  ghostPostId: string,
+  packetDir: string,
+  publisherOutput: ReturnType<typeof PublisherOutputSchema.parse>,
+  creatorPath: string,
+  strategistPath: string,
+  ghostPostUrl: string,
+  publishedAt: string,
+): Promise<void> {
+  try {
+    console.log(`[webhook-server] generating syndication assets for packet ${publisherOutput.packet_id}`);
+    const syndicationAssets = await runSyndicationGenerator(
+      creatorPath, strategistPath, publisherOutput.packet_id, ghostPostUrl,
+      publisherOutput.tags.length > 0 ? publisherOutput.tags : undefined
+    );
+
+    // Write syndication-output.json
+    const syndicationOutputPath = resolve(packetDir, "syndication-output.json");
+    const syndicationOutput: SyndicationOutput = SyndicationOutputSchema.parse({
+      packet_id: publisherOutput.packet_id,
+      canonical_slug: publisherOutput.ghost_post_slug,
+      canonical_url: ghostPostUrl ?? "",
+      assets: syndicationAssets,
+      created_at: new Date().toISOString(),
+    });
+    writeFileSync(syndicationOutputPath, JSON.stringify(syndicationOutput, null, 2));
+
+    // Write preview files
+    writeDerivativesPreviews(syndicationAssets, packetDir);
+
+    // Enqueue syndication assets for rate-limited publishing
+    enqueue({
+      packet_id: publisherOutput.packet_id,
+      syndication_path: syndicationOutputPath,
+      canonical_url: ghostPostUrl ?? "",
+    });
+
+    // Update publisher-output.json with published status
+    const publisherOutPath = resolve(packetDir, "publisher-output.json");
+    publisherOutput.status       = "published";
+    publisherOutput.published_at = publishedAt;
+    writeFileSync(publisherOutPath, JSON.stringify(publisherOutput, null, 2));
+
+    console.log(`[webhook-server] done for packet ${publisherOutput.packet_id}`);
+  } catch (err) {
+    console.error("[webhook-server] background processing error:", err);
+  } finally {
+    inFlightSet.delete(ghostPostId);
+  }
 }
 
 async function handleWebhook(req: IncomingMessage, res: ServerResponse): Promise<void> {
@@ -189,68 +242,28 @@ async function handleWebhook(req: IncomingMessage, res: ServerResponse): Promise
     return;
   }
 
-  inFlightSet.add(ghostPostId);
-  try {
-    const creatorPath = resolve(packetDir, "creator-output.json");
-    if (!existsSync(creatorPath)) {
-      res.writeHead(422).end(JSON.stringify({ error: "creator-output.json not found in packet dir" }));
-      return;
-    }
-
-    const strategistPath = publisherOutput.strategist_output_path;
-    if (!strategistPath || !existsSync(strategistPath)) {
-      res.writeHead(422).end(JSON.stringify({ error: "strategist_output_path missing or file not found" }));
-      return;
-    }
-
-    // Phase 1: Generate syndication assets
-    console.log(`[webhook-server] generating syndication assets for packet ${publisherOutput.packet_id}`);
-    const syndicationAssets = await runSyndicationGenerator(
-      creatorPath, strategistPath, publisherOutput.packet_id, ghostPostUrl,
-      publisherOutput.tags.length > 0 ? publisherOutput.tags : undefined
-    );
-
-    // Write syndication-output.json
-    const syndicationOutputPath = resolve(packetDir, "syndication-output.json");
-    const syndicationOutput: SyndicationOutput = SyndicationOutputSchema.parse({
-      packet_id: publisherOutput.packet_id,
-      canonical_slug: publisherOutput.ghost_post_slug,
-      canonical_url: ghostPostUrl ?? "",
-      assets: syndicationAssets,
-      created_at: new Date().toISOString(),
-    });
-    writeFileSync(syndicationOutputPath, JSON.stringify(syndicationOutput, null, 2));
-
-    // Write preview files
-    writeDerivativesPreviews(syndicationAssets, packetDir);
-
-    // Phase 2: Enqueue syndication assets for rate-limited publishing
-    enqueue({
-      packet_id: publisherOutput.packet_id,
-      syndication_path: syndicationOutputPath,
-      canonical_url: ghostPostUrl ?? "",
-    });
-
-    // Update publisher-output.json with published status
-    const publisherOutPath = resolve(packetDir, "publisher-output.json");
-    publisherOutput.status       = "published";
-    publisherOutput.published_at = publishedAt;
-    writeFileSync(publisherOutPath, JSON.stringify(publisherOutput, null, 2));
-
-    console.log(`[webhook-server] done for packet ${publisherOutput.packet_id}`);
-
-    res.writeHead(200).end(JSON.stringify({
-      status: "ok",
-      packet_id:      publisherOutput.packet_id,
-      ghost_post_url: ghostPostUrl,
-      syndication: "queued",
-    }));
-  } catch (err) {
-    console.error("[webhook-server] error processing webhook:", err);
-    res.writeHead(500).end(JSON.stringify({ error: "internal error" }));
-  } finally {
-    inFlightSet.delete(ghostPostId);
+  const creatorPath = resolve(packetDir, "creator-output.json");
+  if (!existsSync(creatorPath)) {
+    res.writeHead(422).end(JSON.stringify({ error: "creator-output.json not found in packet dir" }));
+    return;
   }
+
+  const strategistPath = publisherOutput.strategist_output_path;
+  if (!strategistPath || !existsSync(strategistPath)) {
+    res.writeHead(422).end(JSON.stringify({ error: "strategist_output_path missing or file not found" }));
+    return;
+  }
+
+  // Respond 202 immediately so Ghost doesn't time out (2s limit),
+  // then process syndication in the background
+  inFlightSet.add(ghostPostId);
+  res.writeHead(202).end(JSON.stringify({
+    status: "accepted",
+    packet_id:      publisherOutput.packet_id,
+    ghost_post_url: ghostPostUrl,
+  }));
+
+  processInBackground(ghostPostId, packetDir, publisherOutput, creatorPath, strategistPath, ghostPostUrl, publishedAt);
 }
 
 export function startServer(): void {
