@@ -90,6 +90,9 @@ async function main() {
   // 6. Drain syndication queue (up to 2 posts/day)
   run("drain-syndication", "npx tsx src/scripts/drain-syndication-queue.ts");
 
+  // 7. Run daily coding agents digest
+  run("digest", "npx tsx src/runner.ts --digest --publisher");
+
   log("=== Nightly sync complete ===");
   console.log(`Log → ${logPath}`);
 }

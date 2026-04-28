@@ -1,6 +1,7 @@
 import { readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { runPublisher } from "../agents/publisher.js";
+import { runNativePublisher } from "../agents/native-publisher.js";
 import { buildAndWriteManifest } from "../manifest.js";
 import type { PipelineContext } from "../pipeline.js";
 
@@ -52,7 +53,25 @@ export async function runPublisherStage(ctx: PipelineContext): Promise<void> {
       console.log(`  Status: ${publisherOutput.status}`);
     }
 
-    // Build canonical-only manifest
+    // Publish native units (X thread, LinkedIn) to Typefully as drafts
+    const derivativesOutPath = resolve(packetDir, "derivatives-output.json");
+    const nativePublisherOutPath = resolve(packetDir, "native-publisher-output.json");
+    try {
+      readFileSync(derivativesOutPath);
+      console.log(`\n--- Publishing native units for ${packetEntry} ---`);
+      const nativeResult = await runNativePublisher(derivativesOutPath, nativePublisherOutPath);
+      if (nativeResult) {
+        for (const r of nativeResult.results) {
+          if (r.status === "drafted") {
+            console.log(`  Typefully draft (${r.platform}): ${r.draft_url ?? r.draft_id}`);
+          }
+        }
+      }
+    } catch {
+      // No derivatives output — skip native publishing
+    }
+
+    // Build manifest
     const manifestOutPath = resolve(packetDir, "manifest.json");
     const pubOutPath = resolve(packetDir, "publisher-output.json");
     const tryReadPath = (p: string) => { try { readFileSync(p); return p; } catch { return null; } };
@@ -60,9 +79,11 @@ export async function runPublisherStage(ctx: PipelineContext): Promise<void> {
       strategistOutPath,
       creatorOutPath,
       manifestOutPath,
-      null, // no derivatives
+      tryReadPath(derivativesOutPath),
       tryReadPath(pubOutPath),
-      null, // no syndication
+      null, // syndication-publisher
+      null, // syndication-output
+      tryReadPath(nativePublisherOutPath),
     );
   }
 

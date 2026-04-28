@@ -5,6 +5,7 @@ import { DerivativesOutputSchema, type DerivativesOutput } from "./models/deriva
 import { SyndicationOutputSchema } from "./models/syndication-output.js";
 import { PublisherOutputSchema } from "./models/publisher-output.js";
 import { SyndicationPublisherOutputSchema } from "./models/syndication-publisher-output.js";
+import { NativePublisherOutputSchema } from "./models/native-publisher-output.js";
 import type { AssetEntry } from "./models/asset-manifest.js";
 
 /** Try to read + parse a JSON file, return null on failure */
@@ -30,6 +31,7 @@ export function buildManifest(
   publisherPath?: string | null,
   syndicationPublisherPath?: string | null,
   syndicationOutputPath?: string | null,
+  nativePublisherPath?: string | null,
 ): AssetEntry[] {
   const strategistRaw = JSON.parse(readFileSync(strategistPath, "utf-8"));
   const strategistOutput = StrategistOutputSchema.parse(strategistRaw);
@@ -83,6 +85,22 @@ export function buildManifest(
     }
   }
 
+  // Load native publisher output for draft URLs
+  const nativeUrls = new Map<string, string>(); // channel → draft_url
+  if (nativePublisherPath) {
+    const nativeRaw = tryReadJson(nativePublisherPath);
+    if (nativeRaw) {
+      try {
+        const nativePub = NativePublisherOutputSchema.parse(nativeRaw);
+        for (const r of nativePub.results) {
+          if (r.draft_url && r.status === "drafted") {
+            nativeUrls.set(r.platform, r.draft_url);
+          }
+        }
+      } catch { /* skip */ }
+    }
+  }
+
   const entries: AssetEntry[] = [];
 
   // 1. Canonical entry (blog)
@@ -107,7 +125,11 @@ export function buildManifest(
         if (derivParsed.success) {
           synAssets = derivParsed.data.syndication_assets;
           for (const unit of (derivParsed.data as DerivativesOutput).native_units) {
-            entries.push(buildNativeEntry(packet, unit.platform, creator.title));
+            const nativeEntry = buildNativeEntry(packet, unit.platform, creator.title);
+            const channel = normalizeChannel(unit.platform);
+            const nativeUrl = nativeUrls.get(channel);
+            if (nativeUrl) nativeEntry.published_url = nativeUrl;
+            entries.push(nativeEntry);
           }
         }
       }
@@ -230,10 +252,12 @@ export function buildAndWriteManifest(
   publisherPath?: string | null,
   syndicationPublisherPath?: string | null,
   syndicationOutputPath?: string | null,
+  nativePublisherPath?: string | null,
 ): AssetEntry[] {
   const entries = buildManifest(
     strategistPath, creatorPath, derivativesPath,
     publisherPath, syndicationPublisherPath, syndicationOutputPath,
+    nativePublisherPath,
   );
   writeFileSync(outPath, JSON.stringify(entries, null, 2));
   console.log(`  [manifest] ${entries.length} asset(s) → ${outPath}`);

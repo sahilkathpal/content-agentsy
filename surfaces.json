@@ -3,6 +3,176 @@
   "last_updated": "2026-04-20",
   "notes": "Starting hypothesis. Tune based on what Scout surfaces and what Strategist proposes. Edit this file directly; git history is the version record.",
 
+  "news_search_brands": [
+    "Claude Code", "Cursor", "Copilot", "Codex CLI", "Cline",
+    "Aider", "Windsurf", "Devin", "Augment Code", "OpenHands",
+    "Amp", "Continue.dev", "Replit Agent", "v0", "Bolt",
+    "SWE agent", "Tabnine"
+  ],
+
+  "watchlist": [
+    {
+      "name": "Claude Code",
+      "github_repos": ["anthropics/claude-code"],
+      "github_org": "anthropics",
+      "official_blog_rss": null,
+      "aliases": ["claude-code", "claudecode", "claude code cli"],
+      "category": "coding_agent"
+    },
+    {
+      "name": "Cursor",
+      "github_repos": [],
+      "github_org": "getcursor",
+      "official_blog_rss": "https://changelog.cursor.com/feed",
+      "aliases": ["cursor ai", "cursor editor", "anysphere"],
+      "category": "coding_agent"
+    },
+    {
+      "name": "Copilot",
+      "github_repos": ["github/copilot.vim"],
+      "github_org": "github",
+      "official_blog_rss": null,
+      "aliases": ["github copilot", "copilot chat", "copilot workspace"],
+      "category": "coding_agent"
+    },
+    {
+      "name": "Codex CLI",
+      "github_repos": ["openai/codex"],
+      "github_org": "openai",
+      "official_blog_rss": "https://openai.com/news/rss.xml",
+      "aliases": ["openai codex", "codex-cli"],
+      "category": "coding_agent"
+    },
+    {
+      "name": "Windsurf",
+      "github_repos": [],
+      "github_org": "codeiumdev",
+      "official_blog_rss": null,
+      "aliases": ["windsurf editor", "codeium", "windsurf ai"],
+      "category": "coding_agent"
+    },
+    {
+      "name": "Devin",
+      "github_repos": [],
+      "github_org": "cognition-labs",
+      "official_blog_rss": null,
+      "aliases": ["devin ai", "cognition labs", "cognition devin"],
+      "category": "coding_agent"
+    },
+    {
+      "name": "Augment Code",
+      "github_repos": [],
+      "github_org": "augmentcode",
+      "official_blog_rss": null,
+      "aliases": ["augment", "augmentcode", "augment agent"],
+      "category": "coding_agent"
+    },
+    {
+      "name": "Amp",
+      "github_repos": [],
+      "github_org": "sourcegraph",
+      "official_blog_rss": "https://sourcegraph.com/blog/feed.atom",
+      "aliases": ["sourcegraph amp", "amp agent", "amp coding"],
+      "category": "coding_agent"
+    },
+    {
+      "name": "Cline",
+      "github_repos": ["cline/cline"],
+      "github_org": "cline",
+      "official_blog_rss": null,
+      "aliases": ["cline ai", "cline vscode"],
+      "category": "coding_agent"
+    },
+    {
+      "name": "Aider",
+      "github_repos": ["Aider-AI/aider"],
+      "github_org": "Aider-AI",
+      "official_blog_rss": null,
+      "aliases": ["aider chat", "aider-ai"],
+      "category": "coding_agent"
+    },
+    {
+      "name": "OpenHands",
+      "github_repos": ["All-Hands-AI/OpenHands"],
+      "github_org": "All-Hands-AI",
+      "official_blog_rss": null,
+      "aliases": ["openhands", "all-hands-ai", "open hands"],
+      "category": "coding_agent"
+    },
+    {
+      "name": "Amazon Q Developer",
+      "github_repos": [],
+      "github_org": "aws",
+      "official_blog_rss": "https://aws.amazon.com/blogs/devops/feed/",
+      "aliases": ["amazon q", "aws q developer", "q developer"],
+      "category": "coding_agent"
+    },
+    {
+      "name": "Gemini Code Assist",
+      "github_repos": [],
+      "github_org": "google",
+      "official_blog_rss": "https://blog.google/technology/ai/rss/",
+      "aliases": ["gemini code assist", "google code assist", "gemini coding"],
+      "category": "coding_agent"
+    },
+    {
+      "name": "Poolside",
+      "github_repos": [],
+      "github_org": "poolside-ai",
+      "official_blog_rss": null,
+      "aliases": ["poolside ai", "poolside code"],
+      "category": "coding_agent"
+    },
+    {
+      "name": "Codestory Aide",
+      "github_repos": ["codestoryai/aide"],
+      "github_org": "codestoryai",
+      "official_blog_rss": null,
+      "aliases": ["aide", "codestory", "aide editor"],
+      "category": "coding_agent"
+    },
+    {
+      "name": "Goose",
+      "github_repos": ["block/goose"],
+      "github_org": "block",
+      "official_blog_rss": null,
+      "aliases": ["goose ai", "block goose", "goose agent"],
+      "category": "coding_agent"
+    },
+    {
+      "name": "Daytona",
+      "github_repos": ["daytonaio/daytona"],
+      "github_org": "daytonaio",
+      "official_blog_rss": null,
+      "aliases": ["daytona.io", "daytona dev environment"],
+      "category": "adjacent_infra"
+    },
+    {
+      "name": "E2B",
+      "github_repos": ["e2b-dev/E2B"],
+      "github_org": "e2b-dev",
+      "official_blog_rss": null,
+      "aliases": ["e2b", "e2b sandbox", "e2b-dev"],
+      "category": "adjacent_infra"
+    },
+    {
+      "name": "Modal",
+      "github_repos": [],
+      "github_org": "modal-labs",
+      "official_blog_rss": null,
+      "aliases": ["modal labs", "modal.com", "modal serverless"],
+      "category": "adjacent_infra"
+    },
+    {
+      "name": "MCP Ecosystem",
+      "github_repos": ["modelcontextprotocol/servers", "modelcontextprotocol/specification"],
+      "github_org": "modelcontextprotocol",
+      "official_blog_rss": null,
+      "aliases": ["mcp", "model context protocol", "mcp server"],
+      "category": "adjacent_infra"
+    }
+  ],
+
   "surfaces": [
     {
       "id": "mobile_claude_code",

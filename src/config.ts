@@ -11,6 +11,9 @@ export const config = {
   hashnodePat: process.env.HASHNODE_PAT ?? "",
   hashnodePublicationId: process.env.HASHNODE_PUBLICATION_ID ?? "",
   ghostWebhookSecret: process.env.GHOST_WEBHOOK_SECRET ?? "",
+  typefullyApiKey: process.env.TYPEFULLY_API_KEY ?? "",
+  typefullySocialSetId: process.env.TYPEFULLY_SOCIAL_SET_ID ?? "",
+  githubToken: process.env.GITHUB_TOKEN ?? "",
 } as const;
 
 export const webhookPort = process.env.WEBHOOK_PORT ? Number(process.env.WEBHOOK_PORT) : 3456;

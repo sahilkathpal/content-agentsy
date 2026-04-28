@@ -4,13 +4,14 @@ import { runPipeline, resumePipeline, type PipelineOpts, type StageName } from "
 import { validateConfig } from "./config.js";
 import { runAnalyst } from "./agents/analyst.js";
 import { buildAndWriteManifest } from "./manifest.js";
+import { runDailyNews } from "./workflows/daily-news.js";
 
 /* ------------------------------------------------------------------ */
 /*  CLI arg parsing                                                    */
 /* ------------------------------------------------------------------ */
 
 interface CliOpts {
-  mode: "pipeline" | "resume" | "analyst" | "build-manifest";
+  mode: "pipeline" | "resume" | "analyst" | "build-manifest" | "digest";
   // Pipeline opts
   surfaces?: string[];
   type?: "permanent" | "rotating";
@@ -25,6 +26,9 @@ interface CliOpts {
   resumeRunId?: string;
   // Analyst
   scoringWindow: "7d" | "14d" | "30d" | "90d";
+  // Digest
+  skipVisuals: boolean;
+  digestResume?: string;
 }
 
 function parseArgs(): CliOpts {
@@ -35,6 +39,7 @@ function parseArgs(): CliOpts {
     maxConcurrent: 3,
     publisher: false,
     scoringWindow: "7d",
+    skipVisuals: false,
   };
 
   for (let i = 0; i < args.length; i++) {
@@ -86,6 +91,15 @@ function parseArgs(): CliOpts {
         break;
       case "--build-manifest":
         opts.mode = "build-manifest";
+        break;
+      case "--digest":
+        opts.mode = "digest";
+        break;
+      case "--skip-visuals":
+        opts.skipVisuals = true;
+        break;
+      case "--digest-resume":
+        opts.digestResume = args[++i];
         break;
       case "--scoring-window":
         opts.scoringWindow = args[++i] as "7d" | "14d" | "30d" | "90d";
@@ -179,6 +193,7 @@ function runBuildManifest(): void {
         tryRead(resolve(packetDir, "publisher-output.json")),
         tryRead(resolve(packetDir, "syndication-publisher-output.json")),
         tryRead(resolve(packetDir, "syndication-output.json")),
+        tryRead(resolve(packetDir, "native-publisher-output.json")),
       );
       console.log(`\n${sub} manifest entries:`);
       for (const e of entries) console.log(`  ${e.asset_id}: ${e.channel} / ${e.asset_type}`);
@@ -194,6 +209,7 @@ function runBuildManifest(): void {
       tryRead(resolve(runDir, "publisher-output.json")),
       tryRead(resolve(runDir, "syndication-publisher-output.json")),
       tryRead(resolve(runDir, "syndication-output.json")),
+      tryRead(resolve(runDir, "native-publisher-output.json")),
     );
     console.log(`\nManifest entries:`);
     for (const e of entries) console.log(`  ${e.asset_id}: ${e.channel} / ${e.asset_type}`);
@@ -227,6 +243,11 @@ async function main() {
       await resumePipeline(opts.resumeRunId);
       return;
 
+    case "digest":
+      validateConfig(["parallelApiKey"]);
+      await runDailyNews({ publish: opts.publisher, skipVisuals: opts.skipVisuals, resume: opts.digestResume });
+      return;
+
     case "pipeline": {
       // Determine the --through stage
       let through: StageName | undefined = opts.through;
@@ -253,6 +274,7 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error("Fatal error:", err);
+  console.error("Fatal error:", err instanceof Error ? err.message : String(err));
+  if (err instanceof Error && err.stack) console.error(err.stack);
   process.exit(1);
 });

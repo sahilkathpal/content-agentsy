@@ -3,6 +3,8 @@ import { spawn } from "node:child_process";
 export interface CallClaudeOpts {
   maxRetries?: number;
   maxTurns?: number;
+  allowedTools?: string[];
+  addDirs?: string[];
 }
 
 /**
@@ -72,6 +74,8 @@ function callClaudeOnce(prompt: string, model?: string, opts?: CallClaudeOpts): 
 
     const args = ["-p", "--output-format", "text", "--max-turns", String(opts?.maxTurns ?? 5)];
     if (model) args.push("--model", model);
+    if (opts?.allowedTools?.length) args.push("--allowedTools", ...opts.allowedTools);
+    if (opts?.addDirs?.length) for (const d of opts.addDirs) args.push("--add-dir", d);
 
     const child = spawn("claude", args, {
       stdio: ["pipe", "pipe", "pipe"],

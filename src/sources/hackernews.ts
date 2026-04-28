@@ -48,3 +48,52 @@ export async function searchHN(
     objectID: h.objectID,
   }));
 }
+
+/**
+ * Fetch HN front page stories and filter for coding-agent relevance.
+ * Single API call — gets what's already trending, not keyword search.
+ */
+export async function fetchHNFrontPage(
+  minPoints: number = 30,
+  relevanceFilter?: { simpleRe: RegExp; ambiguousNames: Set<string>; contextRe: RegExp },
+): Promise<HNHit[]> {
+  const url = `https://hn.algolia.com/api/v1/search?tags=front_page&hitsPerPage=30`;
+  const res = await fetch(url, { signal: AbortSignal.timeout(15_000) });
+
+  if (!res.ok) {
+    console.warn(`HN front page fetch failed: ${res.status}`);
+    return [];
+  }
+
+  const json = await res.json();
+  const hits: any[] = json?.hits ?? [];
+
+  const mapped: HNHit[] = hits
+    .map((h: any) => ({
+      title: h.title,
+      url: h.url ?? null,
+      points: h.points ?? 0,
+      num_comments: h.num_comments ?? 0,
+      created_at: h.created_at,
+      objectID: h.objectID,
+    }))
+    .filter((h) => h.points >= minPoints);
+
+  if (!relevanceFilter) return mapped;
+
+  // Two-pass relevance filter
+  return mapped.filter((h) => {
+    const text = `${h.title} ${h.url ?? ""}`;
+
+    // Pass 1: direct match on unambiguous terms
+    if (relevanceFilter.simpleRe.test(text)) return true;
+
+    // Pass 2: ambiguous names need context co-occurrence
+    for (const name of relevanceFilter.ambiguousNames) {
+      const nameRe = new RegExp(`\\b${name}\\b`, "i");
+      if (nameRe.test(text) && relevanceFilter.contextRe.test(text)) return true;
+    }
+
+    return false;
+  });
+}
