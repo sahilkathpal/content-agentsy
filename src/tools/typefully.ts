@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { basename } from "node:path";
 import { requireKey } from "../config.js";
-import type { CompanionPost, ThreadSegment as DigestThreadSegment } from "../models/digest.js";
+import type { ThreadSegment as DigestThreadSegment } from "../models/digest.js";
 import type { NativeUnit } from "../models/derivatives-output.js";
 import type { NativePlatformResult } from "../models/native-publisher-output.js";
 
@@ -200,19 +200,14 @@ export async function uploadAllMedia(
 // ---------------------------------------------------------------------------
 
 /**
- * Create a Typefully draft from thread segments + optional companion post.
+ * Create a Typefully draft from thread segments.
  *
- * The companion post content is appended as a reply in the thread,
- * providing source links without polluting the main thread.
- *
- * @param segments - Array of tweet texts forming the thread (no external links)
- * @param companion - Optional companion post (title + body with source links)
+ * @param segments - Array of tweet texts forming the thread
  * @param publishAt - "now", "next-free-slot", ISO 8601 datetime, or undefined (save as draft).
  * @param draftTitle - Optional internal title for the draft in Typefully UI.
  */
 export async function createDraft(
   segments: ThreadSegment[],
-  companion?: CompanionPost,
   publishAt?: string,
   draftTitle?: string,
 ): Promise<TypefullyResult> {
@@ -228,9 +223,7 @@ export async function createDraft(
     return post;
   });
 
-  if (companion && companion.body) {
-    posts.push({ text: `${companion.title}\n\n${companion.body}` });
-  }
+  // Companion post is for Ghost blog, not X — don't append to thread.
 
   const body: Record<string, unknown> = {
     platforms: {

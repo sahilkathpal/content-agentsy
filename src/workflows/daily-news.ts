@@ -193,7 +193,6 @@ export async function runDailyNews(opts: DailyNewsOpts): Promise<void> {
 
         return createDraft(
           segments,
-          enrichedContent.companion_post,
           "next-free-slot",
           `Daily AI News — ${date}`,
         );
