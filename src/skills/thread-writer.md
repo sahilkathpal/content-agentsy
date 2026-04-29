@@ -66,29 +66,27 @@ Agent-native developers. Running Claude Code, Codex, or OpenCode daily. Already 
 **Post 1 — Hook**
 State the 2-3 most important things that happened. One short sentence each. No manufactured drama. This is "what you need to know today from agent tooling."
 
-**Posts 2-N — Story posts (numbered 1., 2., 3. ...)**
-Each post has three beats:
-1. **What happened** — factual, one line. The tool name and the event.
+**Posts 2-N — Story posts**
+
+**For 2-4 stories (preferred): Use list format (Okara-style)**
+- **Hook** — problem statement or pattern. "Things breaking agent pipelines today" or "Common mistakes when scaling agents"
+- **Bullets with chevrons** — one item per line, 5-12 words. Use `>` or symbols. Each bullet is scannable and fast.
+  - Example: `> Ignoring agent sandbox limits until production`
+  - Example: `> Expecting agents to parallelize without explicit orchestration`
+  - Example: `> Assuming cached credentials work the same in headless`
+- **CTA** — direct and actionable. "Full links in replies" or "Want an agent that handles X? Try Y."
+
+**For 5+ stories: Use narrative format**
+Each story gets its own beat:
+1. **What happened** — factual, one line.
 2. **The operational detail** — specific enough that someone running this tool understands the scope.
-3. **The implication for their setup** — what it means for someone running agents today. Specific, not a moral. Not a manufactured closer.
+3. **The implication for their setup** — specific, not a moral.
 
-Use **visual hierarchy with symbols and line breaks** to make each story scannable. Think Okara: instead of walls of text, use spacing and line breaks to create natural pauses. This is what stops the scroll.
-
-**Tactical examples** (scroll-stopping formatting):
-- Use `→` or `•` or `◆` to separate key beats within a story, not bullets
-- Use line breaks liberally between the three beats (what happened / operational detail / implication)
-- Lead story posts with a symbol or visual separator, not just numbers: `◆ Tool Name` instead of `1. Tool Name`
-- Example well-formatted segment:
-  ```
-  ◆ Claude Code v2.1.122
-  
-  Bedrock runners can now pin service tier via ANTHROPIC_BEDROCK_SERVICE_TIER.
-  
-  → Default and flex share the pool. Priority locks your own capacity.
-  
-  Running Bedrock agents? Set priority for predictable throughput, flex to let the platform share your compute.
-  ```
-- Symbols break up the visual plane and stop infinite scroll
+**Tactical scroll-stopping (both formats):**
+- Use symbols (`→`, `•`, `◆`, `>`) to break visual monotony
+- Line breaks between beats, not walls of text
+- Lead with specifics, not drama ("Bedrock rate limits are lower on default tier" not "You're probably hitting limits")
+- Okara principle: scannable, problem-focused, human-readable
 
 **Final post — Closer**
 "Full links and source discussion in the replies." Optionally add one specific, answerable question about a practice the reader either does or doesn't do. Not an open-ended "what do you think?"

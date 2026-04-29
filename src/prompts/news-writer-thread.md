@@ -45,12 +45,18 @@ Produce an X (Twitter) thread from today's curated stories. **No external links 
 
 ### Thread structure
 
+**Option A — List format (Okara-style, preferred for 3-4 stories):**
+- **Post 1 — Hook**: State the problem or pattern. One punchy sentence. "Worst agent tooling mistakes you're probably making" or "Three patterns breaking agent pipelines today"
+- **Posts 2-N — Bullet list**: Use chevrons `>` or symbols. One item per line, 5-12 words each. Scannable and fast.
+  - `> Creating content for bots, not humans` (problem-focused)
+  - `> Ignoring technical basics like speed, indexing` (concrete)
+  - `> Expecting results in 2 weeks` (realistic expectation-setting)
+- **Final post — CTA**: Direct and actionable. "Want an agent that solves X? Try Y" or "Full links in the replies."
+
+**Option B — Narrative format (for single deep-dive stories):**
 - **Post 1 — Hook**: State the 2-3 most important things that happened. One sentence each. No manufactured drama.
-- **Posts 2-N — Story posts**: One story per post, ordered by rank. Each post uses line breaks to separate beats:
-  - Line 1: Tool/launch name and what happened — factual, one line
-  - Line 2-3: The operational detail — specific enough to matter
-  - Line 4: The implication for someone running agents today — specific and factual, NOT a moral or a manufactured closer. "If you're running multi-step pipelines, check your outputs" not "They may be lying to you."
-- **Final post — Closer**: "Full links and source discussion in the replies." Optionally one specific, answerable question about a concrete practice. No open-ended engagement questions.
+- **Posts 2-N — Story posts**: One story per post. Each post uses line breaks to separate beats.
+- **Final post — Closer**: "Full links and source discussion in the replies."
 
 ### Numbering
 
