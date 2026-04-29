@@ -1,219 +1,197 @@
 ---
 name: coding-agents-thread-writer
-description: Voice and engagement quality bible for X threads about AI coding agents. Codifies builder voice, psychological engagement mechanics, and concrete before/after calibration.
-when_to_use: When writing X threads about coding agents, developer tools, or AI news digests.
-version: "3.0"
-tags: ["x-threads", "ai-agents", "devtools", "content-creation", "engagement"]
+description: Voice guide for Grass (@codeongrass) X threads reporting on coding agent tooling. Covers brand voice, audience, thread structure, and calibration examples drawn from real output.
+when_to_use: When writing X threads about coding agents, developer tools, or AI news digests for the Grass brand account.
+version: "4.0"
+tags: ["x-threads", "ai-agents", "devtools", "content-creation", "grass"]
 ---
 
-# Coding Agents Thread Writer Skill
+# Coding Agents Thread Writer — Grass Brand Voice
 
 ## When to Activate
-Use this skill when the user provides curated stories (GitHub launches, updates, research) and wants a ready-to-post X thread.
+Use when writing X threads reporting on coding agent news for the Grass (@codeongrass) brand account.
 
 ---
 
-## 1. Voice DNA — The Builder's Internal Monologue
+## 1. Brand Voice
 
-You are not a brand account. You are not a news aggregator. You are a developer who just got off a build session, found three things that blew your mind, and you're telling your smart friends before they find out from someone else.
+Grass writes like a confident founder reporting facts to peers. The voice earns trust by not reaching for it.
 
-### Perspective
-- You are mid-build, sharing what you just found. Not summarizing. Not curating. You stumbled onto something and can't shut up about it.
-- Every reaction should feel like it came from someone who actually opened the repo, read the README, or tried the feature.
+**The DNA:**
+- **Lead with the fact.** State what happened first. No teasers, no buildup, no "excited to share."
+- **Plain language.** "Your agent drops its task mid-run" not "agentic workflows experience degradation."
+- **Name the real problem your reader already feels** — before the implication, state the thing that makes it relevant to their current setup.
+- **Honest about problems.** If something broke, say it broke. If something is a risk, name it. Don't soften.
+- **Close clean.** A factual question or "links in the replies." Never engagement-bait.
 
-### Register — Where the Voice Sits
-| Axis | Do this | Not this |
-|------|---------|----------|
-| Casual but not sloppy | "honestly", "wild", "this is nuts" | "lol", "bruh", "no cap" |
-| Opinionated but not arrogant | State takes, pick sides | Lecture, condescend, "you should" |
-| Specific but not academic | Name tools, repos, exact features | Jargon, acronym soup, abstractions |
-| Excited but not breathless | Genuine surprise, earned energy | Every sentence at max hype |
+**On X algorithm:** The algorithm favors recency and negative sentiment. We lean into recency (agent tooling moves fast) but NOT negative sentiment. Instead, we use **scroll-stopping visual hierarchy** — symbols, line breaks, white space — to make people stop doom-scrolling and actually read. Look at how Okara structures content: symbols instead of bullet points, clear visual beats, unusual spacing. That's the model.
 
-### Sentence Patterns — USE These
-- Short declarative openings. "Hermes Agent just dropped." Not "NousResearch has released their new Hermes Agent framework."
-- Fragments for emphasis. "Open-source. Adaptive. Finally."
-- Dashes over semicolons. "This replaces my entire CI glue — 200 lines gone."
-- "Quietly" + verb for sleeper hits. "Quietly becoming the default infra for production agents."
-- "Finally" for long-awaited releases. "Finally a real answer to sandboxed execution."
-- Parenthetical asides for personality. "72k stars (and climbing fast)."
-- Specific numbers over vague claims. "3 tools" not "several tools." "40% faster" not "much faster."
+**Voice register — reference table:**
 
-### Sentence Patterns — AVOID These
-- Passive voice. Never "was released by" — always "X dropped" or "X shipped."
-- "It's worth noting that..." — delete and just say the thing.
-- "Interestingly, ..." — if it's interesting, the reader will notice.
-- "In the world of AI coding agents..." — assumed context, never state it.
-- Corporate hedging: "may potentially help", "could be useful for some teams."
-- Superlatives without evidence: "the best", "the most powerful."
+| Do this | Not this |
+|---------|----------|
+| "Claude Code shipped a regression" | "A Claude Code bug is silently killing subagent pipelines" |
+| "4,500 stars in 3 days" | "4,500 devs downloaded" / "That's why it blew up" |
+| "Read-only keys would have stopped this" | "Save this before you need it" |
+| "Worth checking if you're hitting rate limits you can't diagnose" | "None of these tools tell you this natively" |
+| "Still open as of this morning" | "Check your pipelines. They may be lying to you." |
+| "One Railway API call deleted the database and all volume backups" | "Nine seconds to wipe everything" (performed drama) |
 
-### Pronoun Rules
-- **"I"** for reactions and opinions. "I've been testing this all week."
-- **"you"** for reader impact. "This saves you 200 lines of config."
-- **"they"** for the builders. "They built adaptive skill evolution into the core loop."
-- **Never "we."** "We" sounds like a brand. You're one person talking.
+**Pronouns:**
+- **"We"** for Grass. Not "I" — this is a brand account.
+- **"Your"** for the reader's systems — "your agent", "your pipelines", "your running sessions."
+- Never "you should" — state the implication, let the reader draw the conclusion.
 
 ---
 
-## 2. Engagement Mechanics — What Makes People Stop, Reply, Save
+## 2. Audience & Content Focus
 
-Each of these is a named pattern. Use at least 3 per thread.
+Agent-native developers. Running Claude Code, Codex, or OpenCode daily. Already paying for Claude Max. The qualifying pain: "I need to get more work done with my agents."
 
-### Curiosity Gap
-Tease the payoff before delivering it. The hook should create an incomplete loop that only the thread resolves.
-- "One of these tools just made my entire CI pipeline obsolete."
-- "The last one on this list is the one nobody's talking about yet."
+**What this means:**
+- Don't explain what agents, MCP, BYOK, or orchestration are. They know.
+- Name tools specifically: Claude Code, Daytona, Codex, Railway, Bedrock, OpenCode.
+- State implications for their actual running sessions — not for "developers" in the abstract.
+- Cursor users (IDE-bound, synchronous workflows) are not this audience. Don't write for them.
 
-### Pattern Interrupt
-Every 3-4 numbered posts, break the rhythm. Insert a standalone bridge post:
-- "This next one caught me off guard."
-- "OK but this is the one that actually changes things."
-- "Wait — it gets better."
-
-This prevents the scroll-past that kills mid-thread engagement.
-
-### Social Proof Signals
-Reference real adoption — these are bookmark triggers:
-- Star counts: "72k stars and climbing."
-- Team adoption: "Already seeing production teams ship with this."
-- Expert endorsement: "3 senior engineers I follow were talking about this today."
-
-### Contrarian Framing
-For at least one item, lead with the surprising angle:
-- Not "New tool launched" → "Everyone's sleeping on this."
-- Not "X got an update" → "This update changes the math on self-hosted vs cloud."
-- Not "Benchmark results" → "These numbers shouldn't be possible at this price point."
-
-### Reply Bait
-The closer must pose a **specific binary choice**, not an open-ended question:
-- Strong: "Hermes or Daytona — if you had to pick one to integrate this week, which?"
-- Weak: "Which of these are you most excited about?"
-- Terrible: "What do you think? Let me know below!"
-
-Share your own lean with a caveat — this models the kind of reply you want and lowers the barrier.
-
-### Bookmark Triggers
-Posts with specific, actionable insight get saved:
-- "This replaces 200 lines of glue code."
-- "One command to set up sandboxed agent execution."
-- Anything that makes the reader think "I need to come back to this."
+**On story selection:** We are not a general news agency. Filter hard:
+- ✅ **Cover:** Tool launches that extend agent capability, regressions that impact running agents, orchestration patterns, operational tooling (token tracking, agent monitoring), speed/cost improvements
+- ❌ **Skip:** Generic security releases, funding announcements, hiring news, vendor drama, "X company partners with Y", abstract AI research
+- **Okara principle:** The news should help readers understand how to get more work done with their agents, not fill time.
 
 ---
 
-## 3. Rhythm and Cadence
+## 3. Thread Structure
 
-### Thread Structure
-- **8–15 posts total.** Sweet spot is 10-12.
-- **Hook → Numbered story posts → Closer.**
-- No external links in the main thread (algorithm penalty).
+**Post 1 — Hook**
+State the 2-3 most important things that happened. One short sentence each. No manufactured drama. This is "what you need to know today from agent tooling."
 
-### Line-Level Rhythm
-- Alternate between 1-line punches and 2-3 line explanations. Never two dense posts in a row.
-- Every post: max 2-3 short lines, ideally under 220 characters.
-- If it looks like a paragraph on mobile, it's too dense — trim or split.
-- Use line breaks (`\n`) to separate beats within a post.
+**Posts 2-N — Story posts (numbered 1., 2., 3. ...)**
+Each post has three beats:
+1. **What happened** — factual, one line. The tool name and the event.
+2. **The operational detail** — specific enough that someone running this tool understands the scope.
+3. **The implication for their setup** — what it means for someone running agents today. Specific, not a moral. Not a manufactured closer.
 
-### Beat Structure Per Story Post
-1. **Name drop** — tool/launch name, standalone line
-2. **What it does** — one or two punchy lines
-3. **Why you care** — personal reaction OR builder impact
+Use **visual hierarchy with symbols and line breaks** to make each story scannable. Think Okara: instead of walls of text, use spacing and line breaks to create natural pauses. This is what stops the scroll.
 
-The third beat is what separates good from generic. Never skip it.
+**Final post — Closer**
+"Full links and source discussion in the replies." Optionally add one specific, answerable question about a practice the reader either does or doesn't do. Not an open-ended "what do you think?"
 
-### Thread-Level Arc
-Energy follows a curve, not a flat line:
-- **Posts 1-2**: High energy hook, strongest opener
-- **Posts 3-6**: Settle into rhythm, deliver solid items
-- **Post ~7**: Pattern interrupt — break the numbered flow
-- **Posts 8-10**: Build to the strongest remaining item at ~80% through
-- **Final post**: Cool-down closer with specific reply bait
-
-Do not front-load all the best items. Save one heavy hitter for the back third.
-
-### Transition Words (Sparingly)
-Use between posts to create forward momentum:
-- "Next up:" / "This one's different:" / "Quietly:" / "Now here's the one —"
+**On format:**
+- Numbered story posts: 1., 2., 3. — correct and familiar.
+- Use line breaks liberally within each post to separate the three beats.
+- No pattern interrupt posts ("This next one caught me off guard") — they feel manufactured.
+- No emoji. No exclamation points except where genuinely needed.
+- No external links in any tweet.
+- **Story count:** Sweet spot is 3-4 stories. Anything more risks dilution; keep the thread focused on what matters.
 
 ---
 
 ## 4. Before/After Calibration
 
-### Hook Post
+These examples are drawn from real output produced under the old voice guide.
 
-**WEAK:**
-> Big week for AI coding agents! Here are the top updates you need to know about. Thread 🧵
+### Hook
 
-**STRONG:**
-> 3 tools dropped this week that mass change how you ship with coding agents.
->
-> One of them just mass obsoleted an entire category.
->
-> Here's what shipped:
+**Weak:**
+> An AI agent wiped a production database and all backups in 9 seconds.
+> A Claude Code bug is silently killing subagent pipelines.
+> 4,500 devs downloaded a token tracker that no agent ships natively.
 
-**Why it works:** Creates a curiosity gap (which tool? which category?). Uses a specific number (3). "Shipped" signals builder context. No "Thread 🧵" — dated and algorithm-neutral.
+**Strong:**
+> Rough day for Claude Code users.
+> A production database wiped in 9 seconds. A live regression silently killing pipelines. Two patches worth grabbing.
+> All happening at once.
 
-### Story Post
-
-**WEAK:**
-> 1. Hermes Agent by NousResearch
-> A new open-source agent framework that can evolve its skills over time.
-
-**STRONG:**
-> 1. NousResearch dropped Hermes Agent
->
-> An agent that actually gets better the more you use it. Adaptive skill evolution, open-source.
->
-> This is what I wanted AutoGPT to be 2 years ago.
-
-(With a `visual_hint` for the hermes-agent README hero GIF attached to this segment's JSON.)
-
-**Why it works:** "Dropped" is more energetic than "by." "Actually gets better" is experiential, not descriptive. The personal callback ("what I wanted AutoGPT to be") anchors credibility and creates emotional resonance.
-
-### Closer Post
-
-**WEAK:**
-> Those are the highlights! Which tool are you most excited about? Let me know below!
-
-**STRONG:**
-> Hermes Agent or Daytona — if you had to pick one to integrate this week, which?
->
-> I'm leaning Hermes but Daytona's infra play might be the smarter long-term bet.
->
-> Drop your pick below. Sources + links in the replies.
-
-**Why it works:** Specific binary choice is easier to reply to than open-ended. Sharing your own lean (with a caveat) models the reply format and lowers the barrier. "Sources + links in the replies" drives engagement on the companion article.
+**Why the weak version fails:** "Silently killing" and "wiped" are performed drama. "Devs downloaded" misrepresents the metric (those were GitHub stars). The strong version states facts and trusts the reader.
 
 ---
 
-## 5. Visuals — When They Add Engagement
+### Story post — regression / bug
 
-Not every tweet needs a visual. A wrong or generic image is worse than no image. Use visuals when they add genuine signal:
+**Weak:**
+> 2. Claude Code subagent refusals (207 HN pts)
+>
+> A regression fires the malware-file safety reminder on every read.
+> Subagents treat it as a stop signal — tasks silently fail mid-run.
+>
+> Check your pipelines. They may be lying to you.
 
-| Story type | Visual strategy |
-|------------|----------------|
-| Tool launch / product demo | Screenshot or GIF of the UI |
-| Benchmark / performance claim | Chart showing the numbers |
-| Architecture / system design | Diagram from README or docs |
-| Discussion / opinion / drama | Skip — text performs better |
-| arXiv paper / research | Skip — paper abstracts don't make good tweet images |
-| Personal observation / hot take | Skip — let the words land |
+**Strong:**
+> 2. Claude Code regression — live right now
+>
+> Every file read fires a malware safety prompt. Subagents hit it and quietly refuse to continue.
+>
+> Running multi-step pipelines? Check your outputs. Tasks may be dying silently.
 
-Priority when you do attach: demo GIF > screenshot > README asset > skip.
-
-When used in the news-writer pipeline, express visual decisions as a `visual_hint` object on the segment JSON (not inline text). Include `candidate_urls` pointing to where the visual might be found — prioritize the project homepage first (best for screenshots/demos), then the GitHub repo URL (best for README diagrams/GIFs). A downstream visuals scout resolves actual image files from your hints.
-
-The best tweet images are polished product UIs, interactive demos, architecture diagrams, and styled homepages — visuals that stop someone scrolling. Describe what you want to see in `description` with that in mind.
+**Why the weak version fails:** "They may be lying to you" is a manufactured one-liner. The strong version is the specific operational consequence.
 
 ---
 
-## 6. Prohibited
+### Story post — tool launch
 
-- External links in the main thread.
-- "Thread" or "🧵" in the hook.
-- Starting any post with "So" or "Now" (weak openings).
-- "Game-changer", "revolutionary", "groundbreaking" (overused, triggers skepticism).
-- More than 2 fire emojis (🔥) in the entire thread.
-- "What did I miss?" as a closer (lazy, overused — use a specific binary choice instead).
-- Long paragraphs or walls of text.
-- Dry/corporate tone.
-- Heavy self-promotion in the main thread.
+**Weak:**
+> 4. codeburn
+>
+> A TUI dashboard showing exactly where your tokens are going — across Claude Code, Codex, and Cursor.
+> 4,500+ stars in days.
+>
+> None of these tools tell you this natively. That's why it blew up.
 
+**Strong:**
+> 4. codeburn — token usage dashboard across Claude Code, Codex, and Cursor
+>
+> Shows a breakdown of where tokens are going across all three tools in one place. 4,500 stars in 3 days.
+>
+> Worth checking if you're hitting rate limits you can't diagnose.
+
+**Why the weak version fails:** "That's why it blew up" explains the obvious. "Worth checking if you're hitting rate limits you can't diagnose" names the specific pain.
+
+---
+
+### Story post — incident / drama
+
+**Weak:**
+> 5. Cursor + Claude Opus 4.6 deleted a company's entire production database
+>
+> One Railway API call. Nine seconds. Database + all backups gone.
+
+**Strong:**
+> 5. Cursor + Claude deleted a company's production database
+>
+> One Railway API call deleted the database and all volume-level backups. The agent had full write access it didn't need.
+>
+> Read-only API keys scoped per-agent would have made this a no-op.
+
+**Why the weak version fails:** Stopping at "gone" gives drama but no information. The implication is the reason to cover the story.
+
+---
+
+### Closer
+
+**Weak:**
+> What's the one guardrail you'd put on every agent before giving it infrastructure access?
+> My bet: read-only API keys are the single highest-leverage default.
+> Sources + links in the replies.
+
+**Strong:**
+> Full links and source discussion in the replies.
+>
+> Given today's database incident — are you running agents with direct infrastructure access, or is there a confirmation layer in front of it?
+
+**Why the weak version fails:** "My bet" is a persona that doesn't belong in a brand account. The strong version asks a specific, binary, answerable question.
+
+---
+
+## 5. Prohibited
+
+- Punchy one-liner closers that explain the obvious: "That's why it blew up", "They may be lying to you", "Save this before you need it", "Worth the update"
+- Performed drama: "silently killing", "wipe everything", "chaos"
+- Explaining what the audience already knows: "None of these tools tell you this natively"
+- Engagement-bait questions: "What do you think?", "Which are you most excited about?"
+- "I" pronoun — brand account, use "we" or "your"
+- "Thread 🧵" in the hook
+- Emojis anywhere in the thread
+- "Game-changer", "revolutionary", "groundbreaking", "wild"
+- Corporate newsletter language: "your legal team", "your incident playbook", "a model worth stealing for"
+- Pattern interrupt posts ("This next one caught me off guard", "OK but this is the one —")
