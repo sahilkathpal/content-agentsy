@@ -74,6 +74,22 @@ Each post has three beats:
 
 Use **visual hierarchy with symbols and line breaks** to make each story scannable. Think Okara: instead of walls of text, use spacing and line breaks to create natural pauses. This is what stops the scroll.
 
+**Tactical examples** (scroll-stopping formatting):
+- Use `→` or `•` or `◆` to separate key beats within a story, not bullets
+- Use line breaks liberally between the three beats (what happened / operational detail / implication)
+- Lead story posts with a symbol or visual separator, not just numbers: `◆ Tool Name` instead of `1. Tool Name`
+- Example well-formatted segment:
+  ```
+  ◆ Claude Code v2.1.122
+  
+  Bedrock runners can now pin service tier via ANTHROPIC_BEDROCK_SERVICE_TIER.
+  
+  → Default and flex share the pool. Priority locks your own capacity.
+  
+  Running Bedrock agents? Set priority for predictable throughput, flex to let the platform share your compute.
+  ```
+- Symbols break up the visual plane and stop infinite scroll
+
 **Final post — Closer**
 "Full links and source discussion in the replies." Optionally add one specific, answerable question about a practice the reader either does or doesn't do. Not an open-ended "what do you think?"
 

@@ -63,6 +63,14 @@ The hook (Post 1) is NOT numbered. Story posts start from **1.** (first story = 
 - **Cover ALL stories** — each gets its own numbered post. Do not drop any.
 - **Respect the editor's ranking** — story posts follow rank order (1 first, 2 second, etc.).
 - Use line breaks (`\n`) within posts to separate beats. No walls of text.
+- **Use symbols for visual hierarchy** — `◆`, `→`, `•` to break up text and stop the scroll. Replace bullet lists with symbols. Example:
+  ```
+  ◆ Tool Name
+  What happened — one factual line.
+  → The operational detail.
+  → Implication for someone running agents.
+  ```
+  Symbols act as visual stoppers on an infinite scroll feed.
 
 ### Visuals
 
