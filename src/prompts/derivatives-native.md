@@ -42,6 +42,20 @@ Produce native content for each platform listed in the native unit targets. Each
 - `has_link` should be true only for tweets that contain a URL.
 - Number positions starting from 1.
 
+**Format: news-roundup style**
+- First line: short lowercase topic line (e.g. "coding agents on HN this week — what's worth knowing")
+- Body: `>` prefixed bullets, one insight per bullet
+- Each bullet must contain something specific: a tool name, a number, a direct quote, or a named event. No generic observations.
+- End the final body bullet with a reply-baiting question on its own line (e.g. "which of these are you running into?")
+- The Grass CTA goes in a separate follow-up post, not in the thread itself
+- The link (codeongrass.com) goes in a reply to the CTA post — never in the post body
+
+**Output structure for X:**
+Return three items in the segments array:
+- `post_1`: the news roundup (no link, no Grass mention)
+- `post_2`: a short 2-line Grass CTA (no link)
+- `post_2_reply`: just the URL, to be posted as a reply to post_2
+
 ### LinkedIn post rules
 
 **Voice: founder_operator_voice** — professional, strategic, authoritative but not stiff. Write like a founder sharing a lesson with their network.

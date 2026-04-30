@@ -46,12 +46,12 @@ Produce an X (Twitter) thread from today's curated stories. **No external links 
 ### Thread structure
 
 **Option A — List format (Okara-style, preferred for 3-4 stories):**
-- **Post 1 — Hook**: State the problem or pattern. One punchy sentence. "Worst agent tooling mistakes you're probably making" or "Three patterns breaking agent pipelines today"
-- **Posts 2-N — Bullet list**: Use chevrons `>` or symbols. One item per line, 5-12 words each. Scannable and fast.
-  - `> Creating content for bots, not humans` (problem-focused)
-  - `> Ignoring technical basics like speed, indexing` (concrete)
-  - `> Expecting results in 2 weeks` (realistic expectation-setting)
-- **Final post — CTA**: Direct and actionable. "Want an agent that solves X? Try Y" or "Full links in the replies."
+- **Post 1 — Hook**: Short lowercase topic line (e.g. "coding agents on HN this week — what's worth knowing")
+- **Posts 2-N — Bullet list**: Use `>` prefixed bullets, one insight per bullet. Each bullet must contain something specific: a tool name, a number, a direct quote, or a named event. No generic observations.
+  - `> maestro hit 24h continuous autonomous claude code runtime — free, open source` (tool + number)
+  - `> best quote from the agents thread: "the highest leverage time is deciding what to work on"` (direct quote)
+  - `> trough visualises retry storms as cost spikes — free for one service` (tool + specific detail)
+- **Final post — Reply-baiting question**: End with a question that invites responses (e.g. "which of these are you running into?"). No Grass mention, no link. The Grass CTA goes in a separate follow-up post outside the thread.
 
 **Option B — Narrative format (for single deep-dive stories):**
 - **Post 1 — Hook**: State the 2-3 most important things that happened. One sentence each. No manufactured drama.
@@ -110,7 +110,7 @@ A downstream visuals scout resolves actual image files from your hints. Focus on
 
 ## Output format
 
-Return a single JSON object — the X thread only:
+Return a single JSON object — the X thread plus the follow-up Grass CTA:
 
 ```json
 {
@@ -118,12 +118,12 @@ Return a single JSON object — the X thread only:
   "segments": [
     {
       "position": 1,
-      "text": "Hook tweet text here",
+      "text": "coding agents on HN this week — what's worth knowing",
       "story_index": null
     },
     {
       "position": 2,
-      "text": "1. Tool Name\nWhat happened — one factual line.\nThe operational detail.\nImplication for someone running agents today.",
+      "text": "> maestro hit 24h continuous autonomous claude code runtime — free, open source\n\n> someone built phone approvals via ntfy with 120s auto-deny\n\n> best quote: \"the highest leverage time is deciding what to work on\"\n\nwhich of these are you running into?",
       "story_index": 1,
       "visual_hint": {
         "description": "Screenshot of the tool's main interface",
@@ -131,19 +131,18 @@ Return a single JSON object — the X thread only:
         "product_name": "Tool Name",
         "candidate_urls": ["https://github.com/owner/tool-name", "https://toolname.dev"]
       }
-    },
-    {
-      "position": 3,
-      "text": "Full links and source discussion in the replies.\nOne question: ...",
-      "story_index": null
     }
   ],
-  "cta": "The exact text of the final segment (closer tweet)"
+  "cta": "The exact text of the final segment (reply-baiting question)",
+  "grass_cta": "we built grass so you're never flying blind on approvals\n\nsee exactly what claude is asking to do, approve from your phone in one tap",
+  "grass_cta_reply": "codeongrass.com"
 }
 ```
 
 **Field rules:**
 - `hook` = exact same text as position 1 segment
-- `cta` = exact same text as final segment
+- `cta` = exact same text as final segment (the reply-baiting question — no Grass mention)
 - `story_index` = the story's `rank` (1-based) for story posts, `null` for hook and closer
 - `visual_hint` = present when the writer decides a visual would add engagement
+- `grass_cta` = short 2-line Grass CTA posted as a separate follow-up (no link)
+- `grass_cta_reply` = the URL posted as a reply to `grass_cta` — always `codeongrass.com`

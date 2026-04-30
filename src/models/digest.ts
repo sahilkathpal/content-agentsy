@@ -135,6 +135,8 @@ export const XThreadSchema = z.object({
   hook: z.string(),
   segments: z.array(ThreadSegmentSchema),
   cta: z.string(),
+  grass_cta: z.string().optional(),
+  grass_cta_reply: z.string().optional(),
 });
 
 export type XThread = z.infer<typeof XThreadSchema>;

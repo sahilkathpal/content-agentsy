@@ -161,6 +161,11 @@ Follow ALL of these rules — they are critical for LLM extractability:
 
 10. **Actionable conclusion**: End with a clear, specific call-to-action or next step — not a generic "in conclusion" summary.
 
+11. **Front-load specifics for native units**: The first paragraph under each heading
+    is extracted for social media content. Lead each section with the most concrete
+    detail available — a tool name, a specific number, or a direct community quote.
+    Don't save the interesting thing for the third paragraph.
+
 ## Output format
 
 Return your response in exactly two sections separated by these delimiters — nothing before, nothing after:

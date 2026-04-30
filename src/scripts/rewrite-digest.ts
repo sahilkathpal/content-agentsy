@@ -43,6 +43,13 @@ for (const seg of content.x_thread.segments) {
   console.log(seg.text);
 }
 
+if (content.x_thread.grass_cta) {
+  console.log(`\n--- Grass CTA (post_2) ---`);
+  console.log(content.x_thread.grass_cta);
+  console.log(`\n--- Grass CTA reply (post_2_reply) ---`);
+  console.log(content.x_thread.grass_cta_reply);
+}
+
 if (!threadOnly && content.companion_post.body) {
   console.log(`\n--- Companion Post ---`);
   console.log(content.companion_post.body.slice(0, 500) + "…");
