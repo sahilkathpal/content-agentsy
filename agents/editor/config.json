@@ -1,0 +1,17 @@
+{
+  "id": "editor",
+  "name": "Editor",
+  "description": "Makes editorial judgments via prepare_clusters and finalize_stories tool calls",
+  "handler": "editDigest",
+  "model": "claude-sonnet-4-6",
+  "allowed_tools": [],
+  "skills": {
+    "default": "src/skills/news-editorial-standards.md"
+  },
+  "context_files": [],
+  "prompt_file": "src/prompts/news-editor.md",
+  "tools": ["prepare_clusters", "finalize_stories"],
+  "input_schema": "NewsItem[]",
+  "output_schema": "EditorialDecision",
+  "timeout_ms": 120000
+}

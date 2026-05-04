@@ -1,0 +1,15 @@
+{
+  "id": "qa",
+  "name": "QA",
+  "description": "Reviews thread quality via run_code_checks tool + editorial review",
+  "handler": "reviewDigest",
+  "model": "claude-haiku-4-5-20251001",
+  "allowed_tools": [],
+  "skills": {},
+  "context_files": [],
+  "prompt_file": "src/prompts/news-qa.md",
+  "tools": ["run_code_checks"],
+  "input_schema": "{ content: DigestContent, stories: CuratedStory[] }",
+  "output_schema": "QaResult",
+  "timeout_ms": 60000
+}

@@ -1,4 +1,4 @@
-import { client } from "./parallel-extract.js";
+import { client } from "./parallel-client.js";
 
 export interface RedditPost {
   title: string;

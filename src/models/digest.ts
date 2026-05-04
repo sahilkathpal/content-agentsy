@@ -142,24 +142,12 @@ export const XThreadSchema = z.object({
 export type XThread = z.infer<typeof XThreadSchema>;
 
 // ---------------------------------------------------------------------------
-// Writer output — Ghost companion post (source links + context)
-// ---------------------------------------------------------------------------
-
-export const CompanionPostSchema = z.object({
-  title: z.string(),
-  body: z.string(),
-});
-
-export type CompanionPost = z.infer<typeof CompanionPostSchema>;
-
-// ---------------------------------------------------------------------------
 // Combined content from the writer agent
 // ---------------------------------------------------------------------------
 
 export const DigestContentSchema = z.object({
   date: z.string(),
   x_thread: XThreadSchema,
-  companion_post: CompanionPostSchema,
   generated_at: z.string(),
 });
 

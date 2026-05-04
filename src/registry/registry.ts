@@ -1,53 +1,25 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { RegistrySchema, type Registry, type Surface, type Subreddit, type Competitor, type WatchlistEntryType } from "../models/surface.js";
 
-const REGISTRY_PATH = resolve(import.meta.dirname, "../../surfaces.json");
+const WATCHLIST_PATH = resolve(import.meta.dirname, "../../watchlist.json");
 
-export function loadRegistry(): Registry {
-  const raw = readFileSync(REGISTRY_PATH, "utf-8");
-  const data = JSON.parse(raw);
-  return RegistrySchema.parse(data);
+export interface WatchlistEntry {
+  name: string;
+  github_repos: string[];
+  github_org: string | null;
+  official_blog_rss: string | null;
+  aliases: string[];
+  category: string;
 }
 
-export interface SelectOptions {
-  type?: "permanent" | "rotating";
-  ids?: string[];
-  maxTier?: 1 | 2 | 3;
+function loadWatchlist(): WatchlistEntry[] {
+  const raw = readFileSync(WATCHLIST_PATH, "utf-8");
+  const data = JSON.parse(raw) as { watchlist: WatchlistEntry[] };
+  return data.watchlist;
 }
 
-export function selectSurfaces(registry: Registry, options?: SelectOptions): Surface[] {
-  let surfaces = [...registry.surfaces];
-
-  if (options?.type) {
-    surfaces = surfaces.filter((s) => s.type === options.type);
-  }
-  if (options?.ids?.length) {
-    const idSet = new Set(options.ids);
-    surfaces = surfaces.filter((s) => idSet.has(s.id));
-  }
-  if (options?.maxTier) {
-    surfaces = surfaces.filter((s) => s.tier <= options.maxTier!);
-  }
-
-  return surfaces.sort((a, b) => a.tier - b.tier);
-}
-
-export function getSubredditsForSurface(registry: Registry, surfaceId: string): Subreddit[] {
-  return registry.subreddits.filter((sub) => sub.surface_ids.includes(surfaceId));
-}
-
-export function getCompetitorsForSurface(registry: Registry, surfaceId: string): Competitor[] {
-  return registry.competitors.filter((c) => c.surface_ids.includes(surfaceId));
-}
-
-// ---------------------------------------------------------------------------
-// Watchlist helpers (event-driven news monitoring)
-// ---------------------------------------------------------------------------
-
-export function getWatchlist(): WatchlistEntryType[] {
-  const registry = loadRegistry();
-  return registry.watchlist;
+export function getWatchlist(): WatchlistEntry[] {
+  return loadWatchlist();
 }
 
 /** Flat list of all GitHub repos from the watchlist. */
@@ -74,7 +46,6 @@ const CONTEXT_TERMS = /\b(AI|coding|editor|IDE|agent|Anysphere|Sourcegraph|code|
 /**
  * Build a regex that matches any watchlist name or alias.
  * For ambiguous names (Cursor, Amp, etc.), requires co-occurrence with context terms.
- * Returns both the simple regex and ambiguous names set for two-pass filtering.
  */
 export function buildRelevanceMatchers(): {
   simpleRe: RegExp;

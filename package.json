@@ -4,22 +4,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "tsx src/runner.ts",
-    "webhook": "tsx src/webhook-server.ts",
-    "sync": "tsx src/sync/run-nightly.ts",
-    "sync:articles": "tsx src/sync/sync-articles.ts",
-    "sync:otterly": "tsx src/sync/sync-otterly.ts",
-    "sync:gsc": "tsx src/sync/sync-gsc.ts",
-    "llms": "tsx src/scripts/update-llms.ts",
-    "scorecard": "tsx src/agents/scorer.ts",
-    "dashboard": "tsx src/dashboard.ts",
-    "extract-context": "tsx src/extractor/index.ts",
-    "drain-syndication": "tsx src/scripts/drain-syndication-queue.ts",
-    "backfill-syndication": "tsx src/scripts/backfill-syndication-queue.ts",
-    "digest": "tsx src/runner.ts --digest",
-    "digest:publish": "tsx src/runner.ts --digest --publisher"
+    "digest": "tsx src/runner.ts",
+    "digest:publish": "tsx src/runner.ts --publisher",
+    "thread": "bash scripts/twitter-news-thread.sh",
+    "thread:publish": "bash scripts/twitter-news-thread.sh --publish"
   },
   "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.2.126",
     "better-sqlite3": "^12.9.0",
     "dotenv": "^16.4.7",
     "fast-xml-parser": "^5.7.2",
@@ -27,7 +18,7 @@
     "parallel-web": "^0.3.2",
     "playwright-chromium": "^1.59.1",
     "sharp": "^0.34.5",
-    "zod": "^3.24.2"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",

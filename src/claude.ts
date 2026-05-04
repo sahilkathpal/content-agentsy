@@ -1,4 +1,5 @@
-import { spawn } from "node:child_process";
+import { query } from "@anthropic-ai/claude-agent-sdk";
+import type { SDKResultSuccess } from "@anthropic-ai/claude-agent-sdk";
 
 export interface CallClaudeOpts {
   maxRetries?: number;
@@ -39,9 +40,8 @@ export function extractJson(text: string): string {
 }
 
 /**
- * Call Claude Code CLI with a prompt and return the text response.
- * Uses spawn to stream the prompt via stdin, avoiding EPIPE on large payloads.
- * Retries transient failures (non-zero exit codes) with exponential backoff.
+ * Call Claude via the Agent SDK and return the text response.
+ * Retries transient failures with exponential backoff.
  */
 export function callClaude(
   prompt: string,
@@ -55,8 +55,10 @@ export function callClaude(
       return await callClaudeOnce(prompt, model, opts);
     } catch (err) {
       if (retryNum < maxRetries) {
-        const delay = Math.pow(2, retryNum) * 1000; // 1s, 2s, 4s...
-        console.log(`  [claude] Retry ${retryNum + 1}/${maxRetries} after ${delay}ms: ${err instanceof Error ? err.message.slice(0, 100) : err}`);
+        const delay = Math.pow(2, retryNum) * 1000;
+        console.log(
+          `  [claude] Retry ${retryNum + 1}/${maxRetries} after ${delay}ms: ${err instanceof Error ? err.message.slice(0, 100) : err}`,
+        );
         await new Promise((r) => setTimeout(r, delay));
         return attempt(retryNum + 1);
       }
@@ -67,47 +69,34 @@ export function callClaude(
   return attempt(0);
 }
 
-function callClaudeOnce(prompt: string, model?: string, opts?: CallClaudeOpts): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const env = { ...process.env };
-    delete env.CLAUDECODE;
+async function callClaudeOnce(
+  prompt: string,
+  model?: string,
+  opts?: CallClaudeOpts,
+): Promise<string> {
+  const hasTools = (opts?.allowedTools?.length ?? 0) > 0;
 
-    const args = ["-p", "--output-format", "text", "--max-turns", String(opts?.maxTurns ?? 5)];
-    if (model) args.push("--model", model);
-    if (opts?.allowedTools?.length) args.push("--allowedTools", ...opts.allowedTools);
-    if (opts?.addDirs?.length) for (const d of opts.addDirs) args.push("--add-dir", d);
-
-    const child = spawn("claude", args, {
-      stdio: ["pipe", "pipe", "pipe"],
-      env,
-    });
-
-    let stdout = "";
-    let stderr = "";
-
-    child.stdout.on("data", (chunk: Buffer) => {
-      stdout += chunk.toString();
-    });
-
-    child.stderr.on("data", (chunk: Buffer) => {
-      stderr += chunk.toString();
-    });
-
-    child.on("error", (err) => {
-      reject(new Error(`claude CLI spawn failed: ${err.message}`));
-    });
-
-    child.on("close", (code) => {
-      if (code !== 0) {
-        reject(new Error(`claude CLI exited with code ${code}\nstderr: ${stderr}`));
-        return;
+  for await (const msg of query({
+    prompt,
+    options: {
+      model,
+      maxTurns: opts?.maxTurns ?? 5,
+      // When tools are specified: make them available and auto-allow them.
+      // When no tools needed: disable all built-in tools to keep calls lean.
+      tools: hasTools ? opts!.allowedTools! : [],
+      allowedTools: opts?.allowedTools ?? [],
+      additionalDirectories: opts?.addDirs ?? [],
+      persistSession: false,
+    },
+  })) {
+    if (msg.type === "result") {
+      if (msg.is_error) {
+        const subtype = (msg as { subtype?: string }).subtype ?? "unknown";
+        throw new Error(`Claude error: ${subtype}`);
       }
-      resolve(stdout);
-    });
+      return (msg as SDKResultSuccess).result;
+    }
+  }
 
-    child.stdin.on("error", () => {});
-    child.stdin.write(prompt, () => {
-      child.stdin.end();
-    });
-  });
+  throw new Error("No result message received from Claude");
 }

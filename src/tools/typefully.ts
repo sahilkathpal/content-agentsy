@@ -2,8 +2,6 @@ import { readFileSync } from "node:fs";
 import { basename } from "node:path";
 import { requireKey } from "../config.js";
 import type { ThreadSegment as DigestThreadSegment } from "../models/digest.js";
-import type { NativeUnit } from "../models/derivatives-output.js";
-import type { NativePlatformResult } from "../models/native-publisher-output.js";
 
 // ---------------------------------------------------------------------------
 // Shared types
@@ -223,8 +221,6 @@ export async function createDraft(
     return post;
   });
 
-  // Companion post is for Ghost blog, not X — don't append to thread.
-
   const body: Record<string, unknown> = {
     platforms: {
       x: {
@@ -286,106 +282,3 @@ export async function createDraft(
   }
 }
 
-// ---------------------------------------------------------------------------
-// Native draft creation — main pipeline (X thread + LinkedIn post)
-// ---------------------------------------------------------------------------
-
-/**
- * Create a Typefully draft from pipeline native units (X thread + LinkedIn post).
- *
- * Saves as draft only (no publish_at) — manual review in Typefully UI.
- * Uses the v2 multi-platform endpoint to create one draft with both platforms.
- */
-export async function createNativeDraft(
-  units: NativeUnit[],
-): Promise<NativePlatformResult[]> {
-  const apiKey = requireKey("typefullyApiKey");
-  const socialSetId = requireKey("typefullySocialSetId");
-
-  const xThread = units.find((u) => u.platform === "x_twitter");
-  const linkedIn = units.find((u) => u.platform === "linkedin");
-
-  if (!xThread && !linkedIn) {
-    return [];
-  }
-
-  const platforms: Record<string, { enabled: boolean; posts: Array<{ text: string }> }> = {};
-
-  if (xThread) {
-    platforms.x = {
-      enabled: true,
-      posts: xThread.segments
-        .sort((a, b) => a.position - b.position)
-        .map((s) => ({ text: s.text })),
-    };
-  }
-
-  if (linkedIn) {
-    platforms.linkedin = {
-      enabled: true,
-      posts: [{ text: linkedIn.text }],
-    };
-  }
-
-  // No publish_at — saves as draft for manual review
-  const body = { platforms };
-
-  try {
-    const response = await fetchWithRetry(
-      `https://api.typefully.com/v2/social-sets/${socialSetId}/drafts`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      },
-    );
-
-    if (!response.ok) {
-      const text = await response.text();
-      throw new Error(`Typefully API ${response.status}: ${text}`);
-    }
-
-    const data = await response.json() as Record<string, unknown>;
-    const draftId = String(data.id ?? "");
-    const draftUrl = data.private_url ? String(data.private_url) : null;
-
-    const results: NativePlatformResult[] = [];
-
-    if (xThread) {
-      results.push({
-        platform: "x",
-        status: "drafted",
-        draft_id: draftId,
-        draft_url: draftUrl,
-        error: null,
-      });
-    }
-
-    if (linkedIn) {
-      results.push({
-        platform: "linkedin",
-        status: "drafted",
-        draft_id: draftId,
-        draft_url: draftUrl,
-        error: null,
-      });
-    }
-
-    return results;
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    console.error(`  [typefully] native draft creation failed: ${message}`);
-
-    const results: NativePlatformResult[] = [];
-    if (xThread) {
-      results.push({ platform: "x", status: "failed", draft_id: null, draft_url: null, error: message });
-    }
-    if (linkedIn) {
-      results.push({ platform: "linkedin", status: "failed", draft_id: null, draft_url: null, error: message });
-    }
-    return results;
-  }
-}
