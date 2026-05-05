@@ -4,8 +4,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "digest": "tsx src/runner.ts",
-    "digest:publish": "tsx src/runner.ts --publisher",
     "thread": "bash scripts/twitter-news-thread.sh",
     "thread:publish": "bash scripts/twitter-news-thread.sh --publish",
     "test:shapes": "tsx tests/agents/schema-check.ts",
@@ -13,22 +11,19 @@
     "test:editor": "tsx tests/agents/editor.test.ts --live",
     "test:writer": "tsx tests/agents/writer.test.ts --live",
     "test:qa": "tsx tests/agents/qa.test.ts --live",
+    "test:visuals": "tsx tests/agents/visuals.test.ts --live",
     "test:regen": "tsx tests/regen.ts",
     "test:regen:edit": "tsx tests/regen.ts --editor --writer --qa"
   },
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "^0.2.126",
-    "better-sqlite3": "^12.9.0",
     "dotenv": "^16.4.7",
     "fast-xml-parser": "^5.7.2",
-    "marked": "^18.0.2",
     "parallel-web": "^0.3.2",
     "playwright-chromium": "^1.59.1",
-    "sharp": "^0.34.5",
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^22.13.10",
     "tsx": "^4.19.3",
     "typescript": "^5.7.3"

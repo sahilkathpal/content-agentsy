@@ -1,4 +1,4 @@
-import { client } from "../sources/parallel-client.js";
+import { client } from "../lib/sources/parallel-client.js";
 
 export interface XPost {
   url: string;

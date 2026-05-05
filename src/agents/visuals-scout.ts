@@ -9,7 +9,7 @@
 import { mkdirSync } from "node:fs";
 import type { DigestContent, ResolvedMedia } from "../models/digest.js";
 import { runAgent } from "./runner.js";
-import { extractJson } from "../claude.js";
+import { extractJson } from "../lib/claude.js";
 
 // ---------------------------------------------------------------------------
 // GitHub URL parsing (exported — used by visual-prescan.ts)

@@ -1,4 +1,4 @@
-import { extractJson } from "../claude.js";
+import { extractJson } from "../lib/claude.js";
 import { runAgent } from "./runner.js";
 import { buildContextIndex } from "../context/load-context.js";
 import { resolve } from "node:path";

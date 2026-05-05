@@ -1,4 +1,4 @@
-import { extractJson } from "../claude.js";
+import { extractJson } from "../lib/claude.js";
 import { runAgent } from "./runner.js";
 import { editorialMcpServer } from "../tools/editorial-tools.js";
 import { EditorialDecisionSchema, type EditorialDecision, type NewsItem } from "../models/digest.js";

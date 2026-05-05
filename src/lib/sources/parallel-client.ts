@@ -1,5 +1,5 @@
 import Parallel from "parallel-web";
-import { requireKey } from "../config.js";
+import { requireKey } from "../../config.js";
 
 let _client: Parallel | null = null;
 

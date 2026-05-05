@@ -1,4 +1,4 @@
-import { extractJson } from "../claude.js";
+import { extractJson } from "../lib/claude.js";
 import { runAgent } from "./runner.js";
 import { researchMcpServer } from "../tools/research-tools.js";
 import { NewsItemSchema, type NewsItem } from "../models/digest.js";

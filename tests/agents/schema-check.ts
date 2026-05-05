@@ -23,6 +23,7 @@ const checks: Array<{ file: string; schema: z.ZodSchema<unknown> }> = [
   { file: "researcher-output.json", schema: z.array(NewsItemSchema) },
   { file: "editor-output.json", schema: EditorialDecisionSchema },
   { file: "writer-output.json", schema: DigestContentSchema },
+  { file: "visuals-output.json", schema: DigestContentSchema },
   { file: "qa-output.json", schema: QaResultSchema },
 ];
 

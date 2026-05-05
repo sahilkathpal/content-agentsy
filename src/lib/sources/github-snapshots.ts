@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync, renameSync } from "node:fs";
 import { resolve } from "node:path";
-import { config } from "../config.js";
+import { config } from "../../config.js";
 
 export interface RepoSnapshot {
   repo: string;

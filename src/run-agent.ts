@@ -17,7 +17,7 @@ import { writeDigest } from "./agents/news-writer.js";
 import { resolveVisuals } from "./agents/visuals-scout.js";
 import { reviewDigest, type QaResult } from "./agents/news-qa.js";
 import { createDraft, uploadAllMedia } from "./tools/typefully.js";
-import { normalizeUrl, loadLedger, saveLedger } from "./ledger.js";
+import { normalizeUrl, loadLedger, saveLedger } from "./lib/ledger.js";
 import type {
   NewsItem,
   CuratedStory,

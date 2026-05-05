@@ -6,15 +6,15 @@
 import { tool, createSdkMcpServer } from "@anthropic-ai/claude-agent-sdk";
 import { z } from "zod";
 import { createHash } from "node:crypto";
-import { searchSubreddit, type RedditPost } from "../sources/reddit.js";
-import { fetchHNFrontPage, type HNHit } from "../sources/hackernews.js";
-import { searchGitHubTrending, type GitHubRepo } from "../sources/github-trending.js";
-import { fetchRecentReleases, type GitHubRelease } from "../sources/github-releases.js";
-import { detectVelocitySpikes, type VelocitySpike } from "../sources/github-snapshots.js";
+import { searchSubreddit, type RedditPost } from "../lib/sources/reddit.js";
+import { fetchHNFrontPage, type HNHit } from "../lib/sources/hackernews.js";
+import { searchGitHubTrending, type GitHubRepo } from "../lib/sources/github-trending.js";
+import { fetchRecentReleases, type GitHubRelease } from "../lib/sources/github-releases.js";
+import { detectVelocitySpikes, type VelocitySpike } from "../lib/sources/github-snapshots.js";
 import { fetchOfficialFeeds, fetchCuratedFeeds, type RSSItem } from "./rss.js";
 import { searchXViral, type XPost } from "./x-search.js";
-import { normalizeUrl, loadLedger } from "../ledger.js";
-import { getWatchlist, getWatchlistRepos, buildRelevanceMatchers } from "../registry/registry.js";
+import { normalizeUrl, loadLedger } from "../lib/ledger.js";
+import { getWatchlist, getWatchlistRepos, buildRelevanceMatchers } from "../lib/registry.js";
 import { NewsItemSchema, type NewsItem } from "../models/digest.js";
 
 const SUBREDDITS = ["ClaudeAI", "LocalLLaMA", "ExperiencedDevs", "cursor"];

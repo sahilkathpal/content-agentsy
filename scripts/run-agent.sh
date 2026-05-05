@@ -40,7 +40,7 @@ if [[ -z "$AGENT_ID" || -z "$RUN_DIR" || -z "$STAGE" ]]; then
 fi
 
 # Validate agent config exists
-AGENT_CONFIG="$PROJECT_ROOT/agents/$AGENT_ID/config.json"
+AGENT_CONFIG="$PROJECT_ROOT/content/pipelines/twitter-news/agents/$AGENT_ID/config.json"
 if [[ ! -f "$AGENT_CONFIG" ]]; then
   echo "ERROR: Agent config not found: $AGENT_CONFIG" >&2
   exit 1

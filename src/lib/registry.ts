@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-const WATCHLIST_PATH = resolve(import.meta.dirname, "../../watchlist.json");
+const WATCHLIST_PATH = resolve(import.meta.dirname, "../../content/watchlist.json");
 
 export interface WatchlistEntry {
   name: string;

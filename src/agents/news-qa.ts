@@ -1,4 +1,4 @@
-import { extractJson } from "../claude.js";
+import { extractJson } from "../lib/claude.js";
 import { runAgent } from "./runner.js";
 import { qaMcpServer } from "../tools/qa-tools.js";
 import type { DigestContent, CuratedStory } from "../models/digest.js";
