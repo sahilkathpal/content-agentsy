@@ -9,17 +9,53 @@ export interface WatchlistEntry {
   github_org: string | null;
   official_blog_rss: string | null;
   aliases: string[];
+  ambiguous?: boolean;
   category: string;
 }
 
-function loadWatchlist(): WatchlistEntry[] {
+interface FeedConfig {
+  name: string;
+  url: string;
+}
+
+interface WatchlistFile {
+  domain_terms: string[];
+  context_terms: string[];
+  x_domain_query: string;
+  subreddits: string[];
+  github_topics: string[];
+  official_feeds: FeedConfig[];
+  curated_feeds: FeedConfig[];
+  watchlist: WatchlistEntry[];
+}
+
+function loadWatchlistFile(): WatchlistFile {
   const raw = readFileSync(WATCHLIST_PATH, "utf-8");
-  const data = JSON.parse(raw) as { watchlist: WatchlistEntry[] };
-  return data.watchlist;
+  return JSON.parse(raw) as WatchlistFile;
 }
 
 export function getWatchlist(): WatchlistEntry[] {
-  return loadWatchlist();
+  return loadWatchlistFile().watchlist;
+}
+
+export function getSubreddits(): string[] {
+  return loadWatchlistFile().subreddits;
+}
+
+export function getGithubTopics(): string[] {
+  return loadWatchlistFile().github_topics;
+}
+
+export function getOfficialFeeds(): FeedConfig[] {
+  return loadWatchlistFile().official_feeds;
+}
+
+export function getCuratedFeeds(): FeedConfig[] {
+  return loadWatchlistFile().curated_feeds;
+}
+
+export function getXDomainQuery(): string {
+  return loadWatchlistFile().x_domain_query;
 }
 
 /** Flat list of all GitHub repos from the watchlist. */
@@ -39,37 +75,43 @@ export function getWatchlistAliases(): Map<string, string> {
   return map;
 }
 
-// Words that need context-aware matching (common English words)
-const AMBIGUOUS_NAMES = new Set(["cursor", "amp", "modal", "goose", "aide", "bolt", "continue"]);
-const CONTEXT_TERMS = /\b(AI|coding|editor|IDE|agent|Anysphere|Sourcegraph|code|developer|dev tool|LLM)\b/i;
-
 /**
  * Build a regex that matches any watchlist name or alias.
- * For ambiguous names (Cursor, Amp, etc.), requires co-occurrence with context terms.
+ * Entries marked ambiguous: true require co-occurrence with a context term.
+ * Domain terms and context terms are read from watchlist.json.
  */
 export function buildRelevanceMatchers(): {
   simpleRe: RegExp;
   ambiguousNames: Set<string>;
   contextRe: RegExp;
 } {
-  const watchlist = getWatchlist();
-  const allTerms: string[] = [];
+  const { watchlist, domain_terms, context_terms } = loadWatchlistFile();
 
+  const ambiguousNames = new Set<string>();
   for (const entry of watchlist) {
-    const names = [entry.name, ...entry.aliases];
-    for (const n of names) {
-      if (!AMBIGUOUS_NAMES.has(n.toLowerCase())) {
+    if (entry.ambiguous) {
+      ambiguousNames.add(entry.name.toLowerCase());
+      for (const alias of entry.aliases) {
+        ambiguousNames.add(alias.toLowerCase());
+      }
+    }
+  }
+
+  const allTerms: string[] = [];
+  for (const entry of watchlist) {
+    for (const n of [entry.name, ...entry.aliases]) {
+      if (!ambiguousNames.has(n.toLowerCase())) {
         allTerms.push(n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
       }
     }
   }
 
-  // Add domain-specific terms that are always relevant
-  allTerms.push(
-    "coding agent", "AI cod(?:ing|e)", "agentic", "vibe cod(?:ing|e)",
-    "MCP", "model context protocol",
-  );
+  for (const term of domain_terms) {
+    allTerms.push(term);
+  }
 
   const simpleRe = new RegExp(`\\b(?:${allTerms.join("|")})\\b`, "i");
-  return { simpleRe, ambiguousNames: AMBIGUOUS_NAMES, contextRe: CONTEXT_TERMS };
+  const contextRe = new RegExp(`\\b(?:${context_terms.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})\\b`, "i");
+
+  return { simpleRe, ambiguousNames, contextRe };
 }

@@ -1,4 +1,5 @@
 import { client } from "../lib/sources/parallel-client.js";
+import { getXDomainQuery } from "../lib/registry.js";
 
 export interface XPost {
   url: string;
@@ -27,7 +28,7 @@ function buildViralQueries(afterDate: string, watchlistNames: string[]) {
   // Strategy 2: Domain-wide viral — only the truly viral moments
   queries.push({
     objective: `Viral posts about coding agents, AI coding tools — major moments only`,
-    query: `site:x.com ("coding agent" OR "AI coding" OR "vibe coding" OR "agentic coding") min_faves:200 -filter:replies since:${afterDate}`,
+    query: `site:x.com (${getXDomainQuery()}) min_faves:200 -filter:replies since:${afterDate}`,
   });
 
   return queries;

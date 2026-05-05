@@ -1,4 +1,5 @@
 import { XMLParser } from "fast-xml-parser";
+import { getOfficialFeeds, getCuratedFeeds } from "../lib/registry.js";
 
 export interface RSSItem {
   title: string;
@@ -13,32 +14,6 @@ interface FeedConfig {
   url: string;
 }
 
-// ---------------------------------------------------------------------------
-// Tier 1 — Official blogs and changelogs (high trust, zero noise)
-// ---------------------------------------------------------------------------
-const OFFICIAL_FEEDS: FeedConfig[] = [
-  { name: "anthropic_engineering", url: "https://raw.githubusercontent.com/conoro/anthropic-engineering-rss-feed/main/anthropic_engineering_rss.xml" },
-  { name: "openai_news", url: "https://openai.com/news/rss.xml" },
-  { name: "cursor_changelog", url: "https://changelog.cursor.com/feed" },
-  { name: "github_blog", url: "https://github.blog/feed/" },
-  { name: "google_deepmind", url: "https://blog.google/technology/ai/rss/" },
-  { name: "huggingface_blog", url: "https://huggingface.co/blog/feed.xml" },
-  { name: "aws_devops_blog", url: "https://aws.amazon.com/blogs/devops/feed/" },
-  { name: "sourcegraph_blog", url: "https://sourcegraph.com/blog/rss.xml" },
-];
-
-// ---------------------------------------------------------------------------
-// Tier 3 — Curated community feeds (high-quality independent voices)
-// ---------------------------------------------------------------------------
-const CURATED_FEEDS: FeedConfig[] = [
-  { name: "simonwillison", url: "https://simonwillison.net/atom/everything/" },
-  { name: "latentspace", url: "https://www.latent.space/feed" },
-  { name: "hf_daily_papers", url: "https://papers.takara.ai/api/feed" },
-];
-
-// Combined for backward compat
-const FEEDS: FeedConfig[] = [...OFFICIAL_FEEDS, ...CURATED_FEEDS];
-
 const parser = new XMLParser({
   ignoreAttributes: false,
   attributeNamePrefix: "@_",
@@ -46,17 +21,17 @@ const parser = new XMLParser({
 
 /** Fetch Tier 1 official blog/changelog feeds. */
 export async function fetchOfficialFeeds(maxAgeDays: number = 1): Promise<RSSItem[]> {
-  return fetchFeedGroup(OFFICIAL_FEEDS, maxAgeDays, "official-rss");
+  return fetchFeedGroup(getOfficialFeeds(), maxAgeDays, "official-rss");
 }
 
 /** Fetch Tier 3 curated community feeds. */
 export async function fetchCuratedFeeds(maxAgeDays: number = 1): Promise<RSSItem[]> {
-  return fetchFeedGroup(CURATED_FEEDS, maxAgeDays, "curated-rss");
+  return fetchFeedGroup(getCuratedFeeds(), maxAgeDays, "curated-rss");
 }
 
 /** Fetch all configured RSS/Atom feeds (backward compat). */
 export async function fetchAllFeeds(maxAgeDays: number = 1): Promise<RSSItem[]> {
-  return fetchFeedGroup(FEEDS, maxAgeDays, "rss");
+  return fetchFeedGroup([...getOfficialFeeds(), ...getCuratedFeeds()], maxAgeDays, "rss");
 }
 
 async function fetchFeedGroup(feeds: FeedConfig[], maxAgeDays: number, label: string): Promise<RSSItem[]> {

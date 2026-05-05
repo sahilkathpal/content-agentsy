@@ -1,4 +1,5 @@
 import { config } from "../../config.js";
+import { getGithubTopics } from "../registry.js";
 
 export interface GitHubRepo {
   full_name: string;
@@ -9,14 +10,6 @@ export interface GitHubRepo {
   created_at: string;
   topics: string[];
 }
-
-const QUERIES = [
-  "topic:coding-agent",
-  "topic:ai-coding",
-  "topic:code-generation language:TypeScript language:Python",
-  "topic:mcp-server",
-  "topic:autonomous-coding",
-];
 
 /**
  * Search GitHub for new and recently-active repos in coding-agent topics.
@@ -31,8 +24,9 @@ const QUERIES = [
 export async function searchGitHubTrending(daysBack: number = 1): Promise<GitHubRepo[]> {
   const since = new Date(Date.now() - daysBack * 86400 * 1000).toISOString().slice(0, 10);
   const newReposSince = new Date(Date.now() - 30 * 86400 * 1000).toISOString().slice(0, 10);
+  const queries = getGithubTopics();
 
-  const newRepoQueries = QUERIES.map(async (topic) => {
+  const newRepoQueries = queries.map(async (topic) => {
     // Strategy 1: genuinely NEW repos (created in the last 30 days)
     const params = new URLSearchParams({
       q: `${topic} created:>${newReposSince} stars:>10`,
@@ -43,7 +37,7 @@ export async function searchGitHubTrending(daysBack: number = 1): Promise<GitHub
     return fetchGitHubSearch(params, topic);
   });
 
-  const activeRepoQueries = QUERIES.map(async (topic) => {
+  const activeRepoQueries = queries.map(async (topic) => {
     // Strategy 2: established repos with recent pushes (higher star floor)
     const params = new URLSearchParams({
       q: `${topic} pushed:>${since} stars:>500`,

@@ -14,10 +14,8 @@ import { detectVelocitySpikes, type VelocitySpike } from "../lib/sources/github-
 import { fetchOfficialFeeds, fetchCuratedFeeds, type RSSItem } from "./rss.js";
 import { searchXViral, type XPost } from "./x-search.js";
 import { normalizeUrl, loadLedger } from "../lib/ledger.js";
-import { getWatchlist, getWatchlistRepos, buildRelevanceMatchers } from "../lib/registry.js";
+import { getWatchlist, getWatchlistRepos, getSubreddits, buildRelevanceMatchers } from "../lib/registry.js";
 import { NewsItemSchema, type NewsItem } from "../models/digest.js";
-
-const SUBREDDITS = ["ClaudeAI", "LocalLLaMA", "ExperiencedDevs", "cursor"];
 
 // ---------------------------------------------------------------------------
 // Converters
@@ -251,7 +249,7 @@ const fetchRedditTool = tool(
   {},
   async () => {
     const relevanceMatchers = buildRelevanceMatchers();
-    const promises = SUBREDDITS.map((sub) =>
+    const promises = getSubreddits().map((sub) =>
       searchSubreddit(sub, "", { sort: "hot", time: "day", limit: 15 }),
     );
     const results = await Promise.allSettled(promises);

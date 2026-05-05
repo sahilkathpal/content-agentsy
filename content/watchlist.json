@@ -1,4 +1,38 @@
 {
+  "domain_terms": [
+    "coding agent",
+    "AI cod(?:ing|e)",
+    "agentic",
+    "vibe cod(?:ing|e)"
+  ],
+  "context_terms": [
+    "AI", "coding", "editor", "IDE", "agent",
+    "Anysphere", "Sourcegraph", "code", "developer", "dev tool", "LLM"
+  ],
+  "x_domain_query": "\"coding agent\" OR \"AI coding\" OR \"vibe coding\" OR \"agentic coding\"",
+  "subreddits": ["ClaudeAI", "LocalLLaMA", "ExperiencedDevs", "cursor"],
+  "github_topics": [
+    "topic:coding-agent",
+    "topic:ai-coding",
+    "topic:code-generation language:TypeScript language:Python",
+    "topic:mcp-server",
+    "topic:autonomous-coding"
+  ],
+  "official_feeds": [
+    { "name": "anthropic_engineering", "url": "https://raw.githubusercontent.com/conoro/anthropic-engineering-rss-feed/main/anthropic_engineering_rss.xml" },
+    { "name": "openai_news", "url": "https://openai.com/news/rss.xml" },
+    { "name": "cursor_changelog", "url": "https://changelog.cursor.com/feed" },
+    { "name": "github_blog", "url": "https://github.blog/feed/" },
+    { "name": "google_deepmind", "url": "https://blog.google/technology/ai/rss/" },
+    { "name": "huggingface_blog", "url": "https://huggingface.co/blog/feed.xml" },
+    { "name": "aws_devops_blog", "url": "https://aws.amazon.com/blogs/devops/feed/" },
+    { "name": "sourcegraph_blog", "url": "https://sourcegraph.com/blog/rss.xml" }
+  ],
+  "curated_feeds": [
+    { "name": "simonwillison", "url": "https://simonwillison.net/atom/everything/" },
+    { "name": "latentspace", "url": "https://www.latent.space/feed" },
+    { "name": "hf_daily_papers", "url": "https://papers.takara.ai/api/feed" }
+  ],
   "watchlist": [
     {
       "name": "Claude Code",
@@ -24,6 +58,7 @@
         "cursor editor",
         "anysphere"
       ],
+      "ambiguous": true,
       "category": "coding_agent"
     },
     {
@@ -99,6 +134,7 @@
         "amp agent",
         "amp coding"
       ],
+      "ambiguous": true,
       "category": "coding_agent"
     },
     {
@@ -188,6 +224,7 @@
         "codestory",
         "aide editor"
       ],
+      "ambiguous": true,
       "category": "coding_agent"
     },
     {
@@ -202,6 +239,7 @@
         "block goose",
         "goose agent"
       ],
+      "ambiguous": true,
       "category": "coding_agent"
     },
     {
@@ -241,7 +279,36 @@
         "modal.com",
         "modal serverless"
       ],
+      "ambiguous": true,
       "category": "adjacent_infra"
+    },
+    {
+      "name": "Bolt",
+      "github_repos": [],
+      "github_org": "stackblitz",
+      "official_blog_rss": null,
+      "aliases": [
+        "bolt.new",
+        "stackblitz bolt",
+        "bolt agent"
+      ],
+      "ambiguous": true,
+      "category": "coding_agent"
+    },
+    {
+      "name": "Continue",
+      "github_repos": [
+        "continuedev/continue"
+      ],
+      "github_org": "continuedev",
+      "official_blog_rss": null,
+      "aliases": [
+        "continue.dev",
+        "continue ai",
+        "continue vscode"
+      ],
+      "ambiguous": true,
+      "category": "coding_agent"
     },
     {
       "name": "MCP Ecosystem",
