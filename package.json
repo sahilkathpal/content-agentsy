@@ -7,7 +7,14 @@
     "digest": "tsx src/runner.ts",
     "digest:publish": "tsx src/runner.ts --publisher",
     "thread": "bash scripts/twitter-news-thread.sh",
-    "thread:publish": "bash scripts/twitter-news-thread.sh --publish"
+    "thread:publish": "bash scripts/twitter-news-thread.sh --publish",
+    "test:shapes": "tsx tests/agents/schema-check.ts",
+    "test:researcher": "tsx tests/agents/researcher.test.ts --live",
+    "test:editor": "tsx tests/agents/editor.test.ts --live",
+    "test:writer": "tsx tests/agents/writer.test.ts --live",
+    "test:qa": "tsx tests/agents/qa.test.ts --live",
+    "test:regen": "tsx tests/regen.ts",
+    "test:regen:edit": "tsx tests/regen.ts --editor --writer --qa"
   },
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "^0.2.126",

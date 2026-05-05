@@ -1,0 +1,24 @@
+{
+  "id": "researcher",
+  "name": "Researcher",
+  "description": "Gathers coding agent news from multiple sources via tool calls",
+  "model": "claude-sonnet-4-6",
+  "prompt_file": "content/pipelines/twitter-news/prompts/news-researcher.md",
+  "server_name": "research-tools",
+  "tools": [
+    "fetch_github_releases",
+    "fetch_official_rss",
+    "fetch_hn",
+    "fetch_x_viral",
+    "fetch_github_velocity",
+    "fetch_github_trending",
+    "fetch_curated_rss",
+    "fetch_reddit",
+    "deduplicate_and_filter"
+  ],
+  "builtin_tools": ["Read"],
+  "max_turns": 20,
+  "skills": [
+    "content/pipelines/twitter-news/skills/news-research-sources"
+  ]
+}

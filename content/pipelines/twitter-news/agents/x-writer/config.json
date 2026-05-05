@@ -1,0 +1,17 @@
+{
+  "id": "x-writer",
+  "name": "X Writer",
+  "description": "Writes X thread from curated stories, revises based on QA feedback",
+  "model": "claude-sonnet-4-6",
+  "prompt_file": "content/pipelines/twitter-news/prompts/news-writer-thread.md",
+  "server_name": null,
+  "tools": [],
+  "builtin_tools": ["Read"],
+  "max_turns": 8,
+  "skills": [
+    "content/pipelines/twitter-news/skills/thread-writer",
+    "content/pipelines/twitter-news/skills/thread-writer-standard",
+    "content/pipelines/twitter-news/skills/thread-writer-short",
+    "content/pipelines/twitter-news/skills/thread-writer-single"
+  ]
+}

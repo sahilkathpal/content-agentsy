@@ -1,89 +1,100 @@
 import { query } from "@anthropic-ai/claude-agent-sdk";
 import type { SDKResultSuccess, McpSdkServerConfigWithInstance } from "@anthropic-ai/claude-agent-sdk";
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
 
 const ROOT = resolve(import.meta.dirname, "../..");
 
 interface AgentConfig {
   model?: string | null;
-  skills?: Record<string, string>;
   prompt_file?: string | null;
+  server_name?: string | null;
+  tools?: string[];
+  builtin_tools?: string[];
+  max_turns?: number;
+  skills?: string[];
 }
 
 function loadConfig(agentId: string): AgentConfig {
-  const configPath = resolve(ROOT, "agents", agentId, "config.json");
+  const configPath = resolve(ROOT, "content/pipelines/twitter-news/agents", agentId, "config.json");
   return JSON.parse(readFileSync(configPath, "utf-8")) as AgentConfig;
 }
 
-function loadPromptFile(filePath: string): string {
-  return readFileSync(resolve(ROOT, filePath), "utf-8");
+function loadSystemMd(agentId: string): string {
+  const path = resolve(ROOT, "content/pipelines/twitter-news/agents", agentId, "system.md");
+  return readFileSync(path, "utf-8");
 }
 
-function loadSkillContent(skillPath: string): string {
-  return readFileSync(resolve(ROOT, skillPath), "utf-8");
+function loadPromptFile(promptFilePath: string): string {
+  const absPath = resolve(ROOT, promptFilePath);
+  if (!existsSync(absPath)) {
+    throw new Error(`Agent prompt_file not found: ${absPath}`);
+  }
+  return readFileSync(absPath, "utf-8").trim();
+}
+
+function validateSkills(agentId: string, skills: string[]): void {
+  for (const skillDir of skills) {
+    const skillPath = resolve(ROOT, skillDir, "SKILL.md");
+    if (!existsSync(skillPath)) {
+      throw new Error(
+        `Agent "${agentId}" references skill "${skillDir}" but SKILL.md not found at: ${skillPath}`,
+      );
+    }
+  }
 }
 
 /**
- * Generic agent runner. Builds a system prompt from the agent's config and
- * prompt_file (injecting skill content), then calls Claude via the Agent SDK
- * with the provided MCP server and tool restrictions.
+ * Generic agent runner. Loads system.md as the system prompt, pre-loads the
+ * prompt file from config and injects it into the user turn, then passes the
+ * dynamic data. The agent can still read skill files at runtime via Read.
  *
- * @param opts.agentId   - Agent folder name under agents/
- * @param opts.prompt    - User message (dynamic data — items, stories, thread, etc.)
- * @param opts.mcpServer - SDK MCP server with the tools Claude can call
- * @param opts.serverName - Key for the MCP server in the mcpServers map
- * @param opts.toolNames  - Short tool names (without mcp__ prefix)
- * @param opts.skillKey   - Key in config.skills to inject into system prompt
- * @param opts.model      - Override model from config
- * @param opts.maxTurns   - Max agentic turns (default: 15)
+ * @param opts.agentId   - Agent folder name under content/pipelines/twitter-news/agents/
+ * @param opts.prompt    - Dynamic data for this run (stories, items, etc.)
+ * @param opts.mcpServer - SDK MCP server providing the agent's tools
+ * @param opts.model     - Override the model from config
+ * @param opts.maxTurns  - Override max agentic turns from config
+ * @param opts.addDirs   - Additional directories to make accessible (e.g. media dir)
  */
 export async function runAgent(opts: {
   agentId: string;
   prompt: string;
   mcpServer?: McpSdkServerConfigWithInstance;
-  serverName?: string;
-  toolNames?: string[];
-  skillOverrides?: Record<string, string>;
   model?: string;
   maxTurns?: number;
+  addDirs?: string[];
 }): Promise<string> {
-  const {
-    agentId,
-    prompt,
-    mcpServer,
-    serverName,
-    toolNames = [],
-    skillOverrides,
-    maxTurns = 15,
-  } = opts;
+  const { agentId, prompt, mcpServer, addDirs = [] } = opts;
 
   const config = loadConfig(agentId);
-  const model = opts.model ?? (config.model ?? undefined);
 
-  // Build system prompt: prompt_file + optional skill injection
-  let systemPrompt = "";
-  if (config.prompt_file) {
-    let raw = loadPromptFile(config.prompt_file);
-    // Named skill placeholders: {{skill_<key>}} → content of config.skills[key] or skillOverrides[key]
-    const allSkills = { ...config.skills, ...(skillOverrides ?? {}) };
-    for (const [key, path] of Object.entries(allSkills)) {
-      if (typeof path === "string") {
-        raw = raw.replace(
-          new RegExp(`\\{\\{skill_${key}\\}\\}`, "g"),
-          loadSkillContent(path),
-        );
-      }
-    }
-    // Strip any remaining unreplaced placeholders so the system prompt is clean
-    raw = raw.replace(/\{\{\w+\}\}/g, "");
-    systemPrompt = raw.trim();
+  // Validate skill paths at startup — catches renames before the agent runs
+  if (config.skills?.length) {
+    validateSkills(agentId, config.skills);
   }
 
-  // MCP tool names as Claude sees them: mcp__<server>__<tool>
+  const model = opts.model ?? (config.model ?? undefined);
+
+  // System prompt: agent identity from system.md
+  const systemPrompt = loadSystemMd(agentId).trim();
+
+  // Pre-load prompt file and inject into user turn — saves one agent turn,
+  // catches path errors at startup. Skills are still read dynamically by the agent.
+  const workflowContent = config.prompt_file ? loadPromptFile(config.prompt_file) : null;
+  const userTurn = workflowContent
+    ? `<workflow>\n${workflowContent}\n</workflow>\n\n${prompt}`
+    : prompt;
+
+  // MCP tools: server name and tool list come from config
+  const serverName = config.server_name ?? undefined;
+  const toolNames = config.tools ?? [];
+  const builtinTools = config.builtin_tools ?? ["Read"];
+  const maxTurns = opts.maxTurns ?? config.max_turns ?? 15;
+
   const mcpToolNames = serverName
     ? toolNames.map((n) => `mcp__${serverName}__${n}`)
-    : toolNames;
+    : [];
+  const allAllowedTools = [...new Set([...builtinTools, ...mcpToolNames])];
 
   const agentDef = {
     description: `${agentId} agent`,
@@ -93,17 +104,18 @@ export async function runAgent(opts: {
   };
 
   for await (const msg of query({
-    prompt,
+    prompt: userTurn,
     options: {
       agent: agentId,
       agents: { [agentId]: agentDef },
       ...(mcpServer && serverName
         ? { mcpServers: { [serverName]: mcpServer } }
         : {}),
-      allowedTools: mcpToolNames,
-      tools: [],
+      allowedTools: allAllowedTools,
+      tools: allAllowedTools,
       maxTurns,
       persistSession: false,
+      additionalDirectories: addDirs,
     },
   })) {
     if (msg.type === "result") {

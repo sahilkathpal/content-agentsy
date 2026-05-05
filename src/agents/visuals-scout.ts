@@ -1,17 +1,15 @@
 /**
- * Visuals Scout v4 — agentic Claude Code call that resolves visual_hint
- * directives in thread segments to actual image files.
+ * Visuals Scout — resolves visual_hint directives in thread segments to
+ * actual image files via the visuals-scout agent.
  *
- * Instead of a rigid pipeline, this spawns a Claude subprocess with
- * Bash + Read tools. The subprocess can browse URLs (via Parallel),
- * download images, capture screenshots, and inspect results — adapting
- * its strategy based on what it finds.
+ * The agent uses Bash + Read tools to browse URLs, download images, capture
+ * screenshots, and inspect results — adapting its strategy based on what it finds.
  */
 
 import { mkdirSync } from "node:fs";
 import type { DigestContent, ResolvedMedia } from "../models/digest.js";
-import { callClaude, extractJson } from "../claude.js";
-import { loadPrompt } from "../prompts/load.js";
+import { runAgent } from "./runner.js";
+import { extractJson } from "../claude.js";
 
 // ---------------------------------------------------------------------------
 // GitHub URL parsing (exported — used by visual-prescan.ts)
@@ -64,7 +62,7 @@ function parseScoutResponse(text: string): ScoutResult[] {
 
 /**
  * Resolve visual_hint directives in thread segments to actual images.
- * Spawns a Claude Code subprocess that autonomously finds and captures visuals.
+ * Runs the visuals-scout agent which autonomously finds and captures visuals.
  * Mutates and returns the content with media fields populated.
  */
 export async function resolveVisuals(
@@ -90,15 +88,17 @@ export async function resolveVisuals(
     visual_hint: s.visual_hint,
   }));
 
-  const prompt = loadPrompt("visuals-scout", {
-    segments_json: JSON.stringify(segmentsForPrompt, null, 2),
-    media_dir: mediaDir,
-  });
+  const prompt = [
+    `Media directory: ${mediaDir}`,
+    ``,
+    `Segments to resolve:`,
+    JSON.stringify(segmentsForPrompt, null, 2),
+  ].join("\n");
 
-  const response = await callClaude(prompt, "claude-sonnet-4-6", {
+  const response = await runAgent({
+    agentId: "visuals-scout",
+    prompt,
     maxTurns: hintedSegments.length * 6 + 2,
-    maxRetries: 1,
-    allowedTools: ["Bash", "Read"],
     addDirs: [mediaDir],
   });
 

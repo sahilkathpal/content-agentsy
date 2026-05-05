@@ -1,6 +1,6 @@
 import { extractJson } from "../claude.js";
 import { runAgent } from "./runner.js";
-import { editorialMcpServer, EDITORIAL_TOOL_NAMES } from "../tools/editorial-tools.js";
+import { editorialMcpServer } from "../tools/editorial-tools.js";
 import { EditorialDecisionSchema, type EditorialDecision, type NewsItem } from "../models/digest.js";
 
 /**
@@ -35,9 +35,6 @@ export async function editDigest(items: NewsItem[]): Promise<EditorialDecision> 
     agentId: "editor",
     prompt,
     mcpServer: editorialMcpServer,
-    serverName: "editorial-tools",
-    toolNames: EDITORIAL_TOOL_NAMES,
-    maxTurns: 10,
   });
 
   const parsed = JSON.parse(extractJson(text));

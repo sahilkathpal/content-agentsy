@@ -1,0 +1,14 @@
+{
+  "id": "qa",
+  "name": "QA",
+  "description": "Reviews thread quality via run_code_checks tool + editorial review",
+  "model": "claude-haiku-4-5-20251001",
+  "prompt_file": "content/pipelines/twitter-news/prompts/news-qa.md",
+  "server_name": "qa-tools",
+  "tools": [
+    "run_code_checks"
+  ],
+  "builtin_tools": ["Read"],
+  "max_turns": 5,
+  "skills": []
+}

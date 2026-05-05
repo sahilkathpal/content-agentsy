@@ -1,0 +1,12 @@
+{
+  "id": "visuals-scout",
+  "name": "Visuals Scout",
+  "description": "Finds and validates images for social content segments with visual hints",
+  "model": "claude-sonnet-4-6",
+  "prompt_file": "content/pipelines/twitter-news/prompts/visuals-scout.md",
+  "server_name": null,
+  "tools": [],
+  "builtin_tools": ["Bash", "Read"],
+  "max_turns": 30,
+  "skills": []
+}

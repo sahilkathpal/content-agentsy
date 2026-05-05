@@ -1,0 +1,12 @@
+{
+  "id": "publisher",
+  "name": "Publisher",
+  "description": "Distributes content to publishing platforms",
+  "handler": "publish",
+  "model": null,
+  "allowed_tools": [],
+  "prompt_file": null,
+  "input_schema": "DigestContent",
+  "output_schema": "PublishResult",
+  "timeout_ms": 60000
+}

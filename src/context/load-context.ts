@@ -1,6 +1,8 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 
+const ROOT = resolve(import.meta.dirname, "../..");
+
 export interface ContextEntry {
   topic: string;
   description: string;
@@ -9,7 +11,7 @@ export interface ContextEntry {
   body: string;
 }
 
-const GRASS_DIR = resolve(import.meta.dirname, "grass");
+const GRASS_DIR = resolve(ROOT, "content/pipelines/twitter-news/context");
 
 /**
  * Parse flat YAML front matter from a markdown string.
@@ -68,4 +70,29 @@ export function loadContextForConsumer(consumer: string): ContextEntry[] {
  */
 export function buildContextString(contexts: ContextEntry[]): string {
   return contexts.map((c) => c.body).join("\n\n");
+}
+
+/**
+ * Build a markdown index of all context files — topic, description, and path.
+ * Agents use this to decide which files to Read at runtime.
+ */
+export function buildContextIndex(): string {
+  const files = readdirSync(GRASS_DIR).filter((f) => f.endsWith(".md"));
+  const entries = files
+    .map((f) => loadFile(resolve(GRASS_DIR, f)))
+    .sort((a, b) => a.priority - b.priority);
+
+  const rows = entries.map(
+    (e) => `| \`${e.topic}.md\` | ${e.description} |`,
+  );
+
+  return [
+    "## Available Grass context files",
+    "",
+    "Read the files relevant to your task from `content/pipelines/twitter-news/context/`.",
+    "",
+    "| File | Description |",
+    "|------|-------------|",
+    ...rows,
+  ].join("\n");
 }

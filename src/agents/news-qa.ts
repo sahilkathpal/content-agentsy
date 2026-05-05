@@ -1,6 +1,6 @@
 import { extractJson } from "../claude.js";
 import { runAgent } from "./runner.js";
-import { qaMcpServer, QA_TOOL_NAMES } from "../tools/qa-tools.js";
+import { qaMcpServer } from "../tools/qa-tools.js";
 import type { DigestContent, CuratedStory } from "../models/digest.js";
 
 // ---------------------------------------------------------------------------
@@ -66,32 +66,12 @@ export async function reviewDigest(
     ``,
     `DigestContent (for run_code_checks):`,
     JSON.stringify(content, null, 2),
-    ``,
-    `Call run_code_checks first, then do your editorial review.`,
-    ``,
-    `Return JSON in this exact shape:`,
-    `{`,
-    `  "code_issues": [...],`,
-    `  "llm_review": {`,
-    `    "score": 1-5,`,
-    `    "suggestions": [...],`,
-    `    "segment_notes": [{"position": N, "note": "..."}]`,
-    `  },`,
-    `  "needs_revision": true|false,`,
-    `  "revision_notes": "..."`,
-    `}`,
-    ``,
-    `Set needs_revision: true if any code_issues exist or llm_review.score < 3.`,
-    `Set revision_notes to a specific, actionable brief for the writer covering exactly what needs to change. Empty string if needs_revision is false.`,
   ].join("\n");
 
   const text = await runAgent({
     agentId: "qa",
     prompt,
     mcpServer: qaMcpServer,
-    serverName: "qa-tools",
-    toolNames: QA_TOOL_NAMES,
-    maxTurns: 5,
   });
 
   const parsed = JSON.parse(extractJson(text));

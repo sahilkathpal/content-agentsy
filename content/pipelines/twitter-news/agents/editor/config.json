@@ -1,0 +1,17 @@
+{
+  "id": "editor",
+  "name": "Editor",
+  "description": "Makes editorial judgments via prepare_clusters and finalize_stories tool calls",
+  "model": "claude-sonnet-4-6",
+  "prompt_file": "content/pipelines/twitter-news/prompts/news-editor.md",
+  "server_name": "editorial-tools",
+  "tools": [
+    "prepare_clusters",
+    "finalize_stories"
+  ],
+  "builtin_tools": ["Read"],
+  "max_turns": 10,
+  "skills": [
+    "content/pipelines/twitter-news/skills/news-editorial-standards"
+  ]
+}
